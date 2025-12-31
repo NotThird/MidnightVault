@@ -951,48 +951,14 @@ app.get('/tv', (req, res) => {
       </div>
     </div>
 
-    <!-- Game Info Overlay (shows every 10 min for first 2 hours) -->
-    <div class="game-info-overlay" id="game-info">
-      <div class="game-info-content">
-        <h2>🔐 MIDNIGHT VAULT</h2>
-        <p class="info-intro">Work together to crack the vault before midnight!</p>
-
-        <div class="info-branches">
-          <div class="info-branch" style="--bc: #e74c3c">
-            <span class="info-icon">🧱</span>
-            <div class="info-text">
-              <strong>LEGO</strong>
-              <span>Build a Lego set, show the host for your first QR code</span>
-            </div>
-          </div>
-          <div class="info-branch" style="--bc: #9b59b6">
-            <span class="info-icon">🔍</span>
-            <div class="info-text">
-              <strong>HIDDEN</strong>
-              <span>Find the hidden QR codes around the house!</span>
-            </div>
-          </div>
-          <div class="info-branch" style="--bc: #3498db">
-            <span class="info-icon">🧩</span>
-            <div class="info-text">
-              <strong>JIGSAW</strong>
-              <span>Complete the jigsaw puzzle, show the host for your QR</span>
-            </div>
-          </div>
-          <div class="info-branch" style="--bc: #27ae60">
-            <span class="info-icon">📦</span>
-            <div class="info-text">
-              <strong>PUZZLE BOX</strong>
-              <span>Open the puzzle box to find the QR code inside</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="info-footer">
-          <p>📱 Scan QR codes with your phone to solve puzzles</p>
-          <p>🔢 Complete all 4 branches to unlock the vault code!</p>
-        </div>
-      </div>
+    <!-- Game Info Bar (slides up from bottom) -->
+    <div class="game-info-bar" id="game-info">
+      <span class="info-bar-title">🔐 HOW TO PLAY:</span>
+      <span class="info-bar-item" style="--bc: #e74c3c">🧱 <strong>LEGO</strong> Build & show host</span>
+      <span class="info-bar-item" style="--bc: #9b59b6">🔍 <strong>HIDDEN</strong> Find the QRs!</span>
+      <span class="info-bar-item" style="--bc: #3498db">🧩 <strong>JIGSAW</strong> Complete & show host</span>
+      <span class="info-bar-item" style="--bc: #27ae60">📦 <strong>PUZZLE BOX</strong> Open to find QR</span>
+      <span class="info-bar-tip">📱 Scan with your phone!</span>
     </div>
 
     <!-- Big Countdown Overlay (JS controlled) -->
@@ -1407,7 +1373,7 @@ app.get('/tv', (req, res) => {
       if (diff > 10000) checkReminders(diff);
     }, 1000);
 
-    // Game Info Overlay - shows for 10 min, hides for 10 min, for first 2 hours
+    // Game Info Bar - slides up for 10 min, hides for 10 min, for first 2 hours
     const gameInfoOverlay = document.getElementById('game-info');
     const gameInfoStartTime = Date.now();
     const GAME_INFO_DURATION = 2 * 60 * 60 * 1000; // 2 hours in ms
