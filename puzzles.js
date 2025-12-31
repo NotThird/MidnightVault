@@ -14,7 +14,8 @@ const BRANCHES = {
   L: { name: 'LEGO', icon: '🧱', color: '#e74c3c', digits: [4, 1], codeWord: 'MIDNIGHT', hint: 'Build a Lego set, show the host' },
   H: { name: 'HIDDEN', icon: '🔍', color: '#9b59b6', digits: [8, 2], codeWord: 'BREAK', hint: 'Find all 4 hidden QR codes!' },
   J: { name: 'JIGSAW', icon: '🧩', color: '#3498db', digits: [0, 9], codeWord: 'FEARLESS', hint: 'Complete the jigsaw, show the host' },
-  P: { name: 'PUZZLE BOX', icon: '📦', color: '#27ae60', digits: [5, 3], codeWord: 'AGAIN', hint: 'Open the puzzle box to get QR' }
+  P: { name: 'PUZZLE BOX', icon: '📦', color: '#27ae60', digits: [5, 3], codeWord: 'AGAIN', hint: 'Open the puzzle box to get QR' },
+  X: { name: 'SUPER PRIZE', icon: '⭐', color: '#f1c40f', digits: [], codeWord: '', hint: 'Super secret bonus!' }
 };
 
 // Final phrase when all branches complete: "MIDNIGHT FEARLESS BREAK AGAIN"

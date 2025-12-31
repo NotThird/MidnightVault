@@ -1080,74 +1080,71 @@ app.get('/tv', (req, res) => {
     const celebrationOverlay = document.getElementById('celebration');
     const celebrationText = document.getElementById('celebration-text');
 
-    // TEST MODE: Admin button or /tv?test=1
-    const urlParams = new URLSearchParams(window.location.search);
-    let testMode = urlParams.get('test') === '1';
-    let testStartTime = testMode ? Date.now() : null;
+    // Poll for admin-triggered countdown - shows all phases with semi-transparent overlay
+    let lastAdminDisplay = null;
+    let adminModeActive = false;
 
-    // Poll for admin-triggered countdown
     async function checkAdminTrigger() {
-      if (testMode) return;
       try {
         const res = await fetch('/api/nye-countdown');
         const data = await res.json();
-        // Admin triggered if display is not null
+
         if (data.display !== null) {
-          testMode = true;
-          testStartTime = Date.now(); // Start 10-second countdown immediately
-        }
-      } catch (e) {}
-    }
-    setInterval(checkAdminTrigger, 1000);
-
-    function updateCountdown() {
-      try {
-        // Target: Jan 1, 2026 00:00:00 Central Time (UTC-6)
-        const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0); // Midnight Central = 6am UTC
-        const nowUTC = Date.now();
-
-        let diff;
-        if (testMode && testStartTime) {
-          const elapsed = nowUTC - testStartTime;
-          diff = 10000 - elapsed;
-          // Reset after test finishes (10 sec after celebration)
-          if (diff < -10000) {
-            testMode = false;
-            testStartTime = null;
-            midnightCelebrated = false;
-            lastBigNumber = null;
-            celebrationOverlay.classList.remove('active', 'midnight-celebration');
-          }
-        } else {
-          diff = targetUTC - nowUTC;
-        }
-
-        const el = document.getElementById('countdown');
-        if (!el) return;
-
-        // BIG COUNTDOWN: Last 10 seconds
-        if (diff > 0 && diff <= 10000) {
-          const secsLeft = Math.ceil(diff / 1000);
-          if (secsLeft !== lastBigNumber) {
-            lastBigNumber = secsLeft;
+          adminModeActive = true;
+          if (data.display !== lastAdminDisplay) {
+            lastAdminDisplay = data.display;
             bigCountdownOverlay.classList.add('active');
-            bigCountdownNum.textContent = secsLeft;
-            bigCountdownNum.classList.add('is-number');
-            bigCountdownNum.classList.remove('is-text');
+            bigCountdownNum.textContent = data.display;
+            if (data.isNumber) {
+              bigCountdownNum.classList.add('is-number');
+              bigCountdownNum.classList.remove('is-text');
+            } else {
+              bigCountdownNum.classList.remove('is-number');
+              bigCountdownNum.classList.add('is-text');
+            }
             // Pop animation
             bigCountdownNum.style.animation = 'none';
             bigCountdownNum.offsetHeight;
             bigCountdownNum.style.animation = '';
           }
-          // Also update small countdown
-          el.textContent = '00:00:' + secsLeft.toString().padStart(2, '0');
-          return;
+        } else if (data.showCelebration) {
+          adminModeActive = true;
+          if (!midnightCelebrated) {
+            midnightCelebrated = true;
+            bigCountdownOverlay.classList.remove('active');
+            celebrationOverlay.classList.add('active', 'midnight-celebration');
+            celebrationText.innerHTML = '🎆 HAPPY NEW YEAR 2026! 🎆';
+            spawnConfetti();
+          }
+        } else {
+          // Admin reset or demo ended
+          if (adminModeActive) {
+            adminModeActive = false;
+            midnightCelebrated = false;
+            lastAdminDisplay = null;
+            bigCountdownOverlay.classList.remove('active');
+            celebrationOverlay.classList.remove('active', 'midnight-celebration');
+          }
         }
+      } catch (e) {}
+    }
+    setInterval(checkAdminTrigger, 500);
+
+    function updateCountdown() {
+      try {
+        // Skip if admin mode is active
+        if (adminModeActive) return;
+
+        const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0);
+        const nowUTC = Date.now();
+        const diff = targetUTC - nowUTC;
+
+        const el = document.getElementById('countdown');
+        if (!el) return;
 
         // MIDNIGHT: Celebrate!
         if (diff <= 0 && !midnightCelebrated) {
           midnightCelebrated = true;
-          bigCountdownOverlay.classList.remove('active');
           celebrationOverlay.classList.add('active', 'midnight-celebration');
           celebrationText.innerHTML = '🎆 HAPPY NEW YEAR 2026! 🎆';
           el.textContent = 'HAPPY NEW YEAR!';
@@ -1156,12 +1153,9 @@ app.get('/tv', (req, res) => {
           return;
         }
 
-        if (diff <= 0) {
-          return; // Already celebrating
-        }
+        if (diff <= 0) return;
 
-        // Normal countdown
-        bigCountdownOverlay.classList.remove('active');
+        // Normal countdown display
         const hours = Math.floor(diff / 3600000);
         const mins = Math.floor((diff % 3600000) / 60000);
         const secs = Math.floor((diff % 60000) / 1000);
@@ -1170,7 +1164,6 @@ app.get('/tv', (req, res) => {
           mins.toString().padStart(2, '0') + ':' +
           secs.toString().padStart(2, '0');
 
-        // Only update if text changed
         if (newText !== lastCountdownText) {
           el.textContent = newText;
           lastCountdownText = newText;
