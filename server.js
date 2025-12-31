@@ -1080,23 +1080,43 @@ app.get('/tv', (req, res) => {
     const celebrationOverlay = document.getElementById('celebration');
     const celebrationText = document.getElementById('celebration-text');
 
-    // TEST MODE: /tv?test=1 triggers immediate 10-second countdown
+    // TEST MODE: Admin button or /tv?test=1
     const urlParams = new URLSearchParams(window.location.search);
-    const testMode = urlParams.get('test') === '1';
-    const testStartTime = testMode ? Date.now() : null;
+    let testMode = urlParams.get('test') === '1';
+    let testStartTime = testMode ? Date.now() : null;
+
+    // Poll for admin-triggered countdown
+    async function checkAdminTrigger() {
+      if (testMode) return;
+      try {
+        const res = await fetch('/api/nye-countdown');
+        const data = await res.json();
+        if (data.display !== null && typeof data.display === 'number') {
+          testMode = true;
+          testStartTime = Date.now() - ((10 - data.display) * 1000);
+        }
+      } catch (e) {}
+    }
+    setInterval(checkAdminTrigger, 1000);
 
     function updateCountdown() {
       try {
         // Target: Jan 1, 2026 00:00:00 Central Time (UTC-6)
-        // Central Standard Time is UTC-6
         const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0); // Midnight Central = 6am UTC
         const nowUTC = Date.now();
 
-        // In test mode, simulate 10 seconds from page load
         let diff;
         if (testMode && testStartTime) {
           const elapsed = nowUTC - testStartTime;
-          diff = 10000 - elapsed; // 10 seconds countdown
+          diff = 10000 - elapsed;
+          // Reset after test finishes (10 sec after celebration)
+          if (diff < -10000) {
+            testMode = false;
+            testStartTime = null;
+            midnightCelebrated = false;
+            lastBigNumber = null;
+            celebrationOverlay.classList.remove('active', 'midnight-celebration');
+          }
         } else {
           diff = targetUTC - nowUTC;
         }
@@ -1417,14 +1437,16 @@ app.get('/admin', (req, res) => {
         </div>`;
     }).join('');
     
+    const totalSteps = branchPuzzles.length;
     return `
       <div class="admin-branch" style="--branch-color: ${info.color}">
         <div class="admin-branch-header">
-          <h3>${info.name}</h3>
+          <h3>${info.icon} ${info.name}</h3>
           <span class="branch-status-badge ${status.done ? 'complete' : ''}">
-            ${status.done ? 'COMPLETE' : `${status.steps.filter(s=>s).length}/3`}
+            ${status.done ? 'COMPLETE' : `${status.steps.filter(s=>s).length}/${totalSteps}`}
           </span>
           <span class="branch-digits">Digits: ${info.digits.join(', ')}</span>
+          <span class="branch-codeword">Word: ${info.codeWord}</span>
         </div>
         <div class="admin-puzzles-grid">
           ${puzzleCards}
@@ -1477,16 +1499,20 @@ app.get('/admin', (req, res) => {
       <h2>Vault Code Computation</h2>
       <div class="vault-math-display">
         <div class="math-row">
-          <span class="math-label">Branch Digits:</span>
+          <span class="math-label">Branch Digits + Code Words:</span>
           <span class="math-value">
-            <span class="digit-group" style="--branch-color: #e74c3c">F: 4,1</span>
-            <span class="digit-group" style="--branch-color: #9b59b6">M: 8,2</span>
-            <span class="digit-group" style="--branch-color: #3498db">D: 0,9</span>
-            <span class="digit-group" style="--branch-color: #27ae60">B: 5,3</span>
+            <span class="digit-group" style="--branch-color: #e74c3c">L: 4,1 (MIDNIGHT)</span>
+            <span class="digit-group" style="--branch-color: #9b59b6">H: 8,2 (BREAK)</span>
+            <span class="digit-group" style="--branch-color: #3498db">J: 0,9 (FEARLESS)</span>
+            <span class="digit-group" style="--branch-color: #27ae60">P: 5,3 (AGAIN)</span>
           </span>
         </div>
         <div class="math-row">
-          <span class="math-label">Current Digits (F+M+D+B order):</span>
+          <span class="math-label">Final Phrase:</span>
+          <span class="math-value" style="color: #f1c40f; font-weight: bold;">MIDNIGHT FEARLESS BREAK AGAIN</span>
+        </div>
+        <div class="math-row">
+          <span class="math-label">Current Digits (L+H+J+P order):</span>
           <span class="math-value mono">${digits || '(none yet)'}</span>
         </div>
         <div class="math-row">
