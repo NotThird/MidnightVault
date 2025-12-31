@@ -1700,15 +1700,16 @@ app.get('/admin/qr', (req, res) => {
     const puzzleUrl = `${baseUrl}/p/${p.id}`;
 
     return `
-      <div class="qr-card" style="--branch-color: ${branchInfo.color}">
-        <div class="qr-header">
+      <div class="qr-card" style="--branch-color: ${branchInfo.color}" data-id="${p.id}" data-branch="${branchInfo.name}" data-step="${p.step}" data-location="${p.location_hint}">
+        <div class="qr-header no-print">
           <span class="qr-branch" style="background: ${branchInfo.color}">${branchInfo.name}</span>
           <span class="qr-step">Step ${p.step}</span>
           <span class="qr-id">#${p.id}</span>
         </div>
         <div class="qr-code" id="qr-${p.id}"></div>
-        <div class="qr-location">${p.location_hint}</div>
+        <div class="qr-location no-print">${p.location_hint}</div>
         <div class="qr-url">${puzzleUrl}</div>
+        <button class="btn btn-small download-btn no-print" onclick="downloadQR('${p.id}', '${branchInfo.name}', ${p.step})">Download PNG</button>
       </div>
     `;
   }).join('');
@@ -1717,7 +1718,8 @@ app.get('/admin/qr', (req, res) => {
     <div class="qr-page">
       <div class="qr-controls no-print">
         <a href="/admin?key=${ADMIN_KEY}" class="btn btn-secondary">&larr; Back to Admin</a>
-        <button onclick="window.print()" class="btn btn-primary">Print QR Codes</button>
+        <button onclick="downloadAllQR()" class="btn btn-primary">Download All PNGs</button>
+        <button onclick="window.print()" class="btn btn-secondary">Print Sheet</button>
         <div class="base-url-form">
           <label>Base URL:</label>
           <input type="text" id="base-url-input" value="${baseUrl}" style="width: 300px">
@@ -1743,8 +1745,8 @@ app.get('/admin/qr', (req, res) => {
         const url = baseUrl + '/p/' + id;
         new QRCode(el, {
           text: url,
-          width: 180,
-          height: 180,
+          width: 200,
+          height: 200,
           colorDark: '#000000',
           colorLight: '#ffffff',
           correctLevel: QRCode.CorrectLevel.M
@@ -1754,6 +1756,52 @@ app.get('/admin/qr', (req, res) => {
       function updateBaseUrl() {
         const newBase = document.getElementById('base-url-input').value;
         window.location.href = '/admin/qr?key=${ADMIN_KEY}&base=' + encodeURIComponent(newBase);
+      }
+
+      function downloadQR(id, branch, step) {
+        const el = document.getElementById('qr-' + id);
+        const canvas = el.querySelector('canvas');
+        if (!canvas) return;
+
+        // Create a new canvas with just QR and URL
+        const size = 400;
+        const padding = 20;
+        const urlHeight = 30;
+        const newCanvas = document.createElement('canvas');
+        newCanvas.width = size;
+        newCanvas.height = size + urlHeight + padding;
+        const ctx = newCanvas.getContext('2d');
+
+        // White background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+
+        // Draw QR code scaled up
+        ctx.drawImage(canvas, 0, 0, size, size);
+
+        // Draw URL below
+        ctx.fillStyle = '#333333';
+        ctx.font = '14px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        const url = baseUrl + '/p/' + id;
+        ctx.fillText(url, size / 2, size + urlHeight);
+
+        // Download
+        const link = document.createElement('a');
+        link.download = 'qr-' + branch.toLowerCase() + '-step' + step + '.png';
+        link.href = newCanvas.toDataURL('image/png');
+        link.click();
+      }
+
+      async function downloadAllQR() {
+        const cards = document.querySelectorAll('.qr-card');
+        for (const card of cards) {
+          const id = card.dataset.id;
+          const branch = card.dataset.branch;
+          const step = card.dataset.step;
+          downloadQR(id, branch, step);
+          await new Promise(r => setTimeout(r, 300)); // Small delay between downloads
+        }
       }
     </script>
 
@@ -1780,8 +1828,11 @@ app.get('/admin/qr', (req, res) => {
       .qr-code canvas, .qr-code img { border-radius: 8px; }
       .qr-location { font-size: 1.1rem; font-weight: 600; color: var(--accent-gold); margin: 0.5rem 0; }
       .qr-url { font-size: 0.7rem; color: var(--text-secondary); word-break: break-all; }
+      .btn-small { padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-top: 0.5rem; }
+      .download-btn { background: var(--accent-gold); color: #000; border: none; cursor: pointer; border-radius: 6px; }
+      .download-btn:hover { opacity: 0.9; }
 
-      /* STICKER PRINT MODE */
+      /* STICKER PRINT MODE - Clean QR + URL only */
       @media print {
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         .no-print { display: none !important; }
@@ -1791,65 +1842,41 @@ app.get('/admin/qr', (req, res) => {
 
         .qr-grid {
           display: grid;
-          grid-template-columns: repeat(3, 2.5in);
-          gap: 0.2in;
+          grid-template-columns: repeat(4, 2in);
+          gap: 0.15in;
           justify-content: center;
         }
 
         .qr-card {
-          width: 2.5in;
-          height: 3in;
-          padding: 0.15in;
+          width: 2in;
+          height: 2.3in;
+          padding: 0.1in;
           margin: 0;
-          border: 2px solid #333 !important;
-          border-radius: 8px;
+          border: 1px solid #ccc !important;
+          border-radius: 4px;
           background: white !important;
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: space-between;
+          justify-content: center;
           page-break-inside: avoid;
           box-sizing: border-box;
         }
 
-        .qr-header {
-          margin-bottom: 0.1in;
-          gap: 0.1in;
-        }
-
-        .qr-branch {
-          font-size: 10pt;
-          padding: 2px 8px;
-        }
-
-        .qr-step {
-          background: #eee !important;
-          color: black !important;
-          font-size: 9pt;
-          padding: 2px 6px;
-        }
-
-        .qr-id { display: none; }
-
         .qr-code {
-          margin: 0.05in 0;
+          margin: 0;
         }
 
         .qr-code canvas, .qr-code img {
-          width: 1.8in !important;
-          height: 1.8in !important;
-        }
-
-        .qr-location {
-          color: #000 !important;
-          font-size: 12pt;
-          font-weight: 700;
-          margin: 0.05in 0;
+          width: 1.6in !important;
+          height: 1.6in !important;
         }
 
         .qr-url {
-          font-size: 7pt;
-          color: #666 !important;
+          font-size: 6pt;
+          color: #333 !important;
+          margin-top: 0.05in;
+          text-align: center;
         }
       }
     </style>
