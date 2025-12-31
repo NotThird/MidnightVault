@@ -11,10 +11,10 @@ const BRANCH_ORDER = ['L', 'H', 'J', 'P'];
 
 // Branch metadata
 const BRANCHES = {
-  L: { name: 'LEGO', icon: '🧱', color: '#e74c3c', digits: [4, 1], hint: 'Build the Lego to find the first QR' },
-  H: { name: 'HIDDEN', icon: '🔍', color: '#9b59b6', digits: [8, 2], hint: 'Search carefully to find the hidden QR' },
-  J: { name: 'JIGSAW', icon: '🧩', color: '#3498db', digits: [0, 9], hint: 'Complete the jigsaw to reveal the first QR' },
-  P: { name: 'PUZZLE BOX', icon: '📦', color: '#27ae60', digits: [5, 3], hint: 'Open the puzzle box to get the first QR' }
+  L: { name: 'LEGO', icon: '🧱', color: '#e74c3c', digits: [4, 1], hint: 'Build a Lego set, show the host' },
+  H: { name: 'HIDDEN', icon: '🔍', color: '#9b59b6', digits: [8, 2], hint: 'Find all 3 hidden QR codes!' },
+  J: { name: 'JIGSAW', icon: '🧩', color: '#3498db', digits: [0, 9], hint: 'Complete the jigsaw, show the host' },
+  P: { name: 'PUZZLE BOX', icon: '📦', color: '#27ae60', digits: [5, 3], hint: 'Open the puzzle box to get QR' }
 };
 
 // Permutation key (1-indexed positions) - revealed at hub
@@ -23,13 +23,13 @@ const PERMUTATION_KEY = '26153478';
 // 12 puzzles: 3 per branch, sequential steps within each branch
 // Physical puzzle (Lego/Hidden/Jigsaw/Puzzle Box) reveals QR1, then chain continues
 const PUZZULAR = [
-  // LEGO branch (L1, L2, L3) - Build lego to find QR1
+  // LEGO branch (L1, L2, L3) - Build lego, get QR from host
   {
     id: 1,
     branch: 'L',
     step: 1,
     title: 'Lego Puzzle 1',
-    location_hint: 'Inside the completed Lego build',
+    location_hint: 'Complete a Lego set, show the host!',
     prompt: 'Caesar cipher +3: Decode "SODBOLVW"',
     answer: 'PLAYLIST'
   },
@@ -52,42 +52,43 @@ const PUZZULAR = [
     answer: 'TBD'
   },
 
-  // HIDDEN branch (H1, H2, H3) - Find the hidden QR1
+  // HIDDEN branch (H1, H2, H3) - All QRs physically hidden, scavenger hunt style
+  // Puzzles are easy - the challenge is FINDING the QR codes
   {
     id: 4,
     branch: 'H',
     step: 1,
-    title: 'Hidden Puzzle 1',
-    location_hint: 'Somewhere hidden...',
-    prompt: 'What part of a song repeats the most?',
-    answer: 'CHORUS'
+    title: 'Hidden Hunt 1',
+    location_hint: 'Check near the front door',
+    prompt: 'You found it! What color is the sky on a clear day?',
+    answer: 'BLUE'
   },
   {
     id: 5,
     branch: 'H',
     step: 2,
-    title: 'Hidden Puzzle 2',
-    location_hint: 'TBD',
-    prompt: 'TBD',
-    answer: 'TBD'
+    title: 'Hidden Hunt 2',
+    location_hint: 'Look where you sit to relax',
+    prompt: 'Nice hunting! How many sides does a triangle have?',
+    answer: '3'
   },
   {
     id: 6,
     branch: 'H',
     step: 3,
-    title: 'Hidden Puzzle 3',
-    location_hint: 'TBD',
-    prompt: 'TBD',
-    answer: 'TBD'
+    title: 'Hidden Hunt 3',
+    location_hint: 'Check where drinks stay cold',
+    prompt: 'Expert finder! What do you call frozen water?',
+    answer: 'ICE'
   },
 
-  // JIGSAW branch (J1, J2, J3) - Complete jigsaw to reveal QR1
+  // JIGSAW branch (J1, J2, J3) - Complete jigsaw, get QR from host
   {
     id: 7,
     branch: 'J',
     step: 1,
     title: 'Jigsaw Puzzle 1',
-    location_hint: 'On the completed jigsaw',
+    location_hint: 'Complete the jigsaw, show the host!',
     prompt: 'Unscramble: RAELGND',
     answer: 'GARLAND'
   },

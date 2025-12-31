@@ -1073,6 +1073,13 @@ app.get('/tv', (req, res) => {
     setInterval(() => { tauntNeedsUpdate = true; }, 15000);
 
     let lastCountdownText = '';
+    let lastBigNumber = null;
+    let midnightCelebrated = false;
+    const bigCountdownOverlay = document.getElementById('big-countdown');
+    const bigCountdownNum = document.getElementById('big-countdown-num');
+    const celebrationOverlay = document.getElementById('celebration');
+    const celebrationText = document.getElementById('celebration-text');
+
     function updateCountdown() {
       try {
         // Target: Jan 1, 2026 00:00:00 Central Time (UTC-6)
@@ -1084,22 +1091,48 @@ app.get('/tv', (req, res) => {
         const el = document.getElementById('countdown');
         if (!el) return;
 
-        let newText;
-        if (diff <= 0) {
-          newText = 'HAPPY NEW YEAR!';
-          if (lastCountdownText !== newText) {
-            el.textContent = newText;
-            el.classList.add('midnight');
-            lastCountdownText = newText;
+        // BIG COUNTDOWN: Last 10 seconds
+        if (diff > 0 && diff <= 10000) {
+          const secsLeft = Math.ceil(diff / 1000);
+          if (secsLeft !== lastBigNumber) {
+            lastBigNumber = secsLeft;
+            bigCountdownOverlay.classList.add('active');
+            bigCountdownNum.textContent = secsLeft;
+            bigCountdownNum.classList.add('is-number');
+            bigCountdownNum.classList.remove('is-text');
+            // Pop animation
+            bigCountdownNum.style.animation = 'none';
+            bigCountdownNum.offsetHeight;
+            bigCountdownNum.style.animation = '';
           }
+          // Also update small countdown
+          el.textContent = '00:00:' + secsLeft.toString().padStart(2, '0');
           return;
         }
 
+        // MIDNIGHT: Celebrate!
+        if (diff <= 0 && !midnightCelebrated) {
+          midnightCelebrated = true;
+          bigCountdownOverlay.classList.remove('active');
+          celebrationOverlay.classList.add('active', 'midnight-celebration');
+          celebrationText.innerHTML = '🎆 HAPPY NEW YEAR 2026! 🎆';
+          el.textContent = 'HAPPY NEW YEAR!';
+          el.classList.add('midnight');
+          spawnConfetti();
+          return;
+        }
+
+        if (diff <= 0) {
+          return; // Already celebrating
+        }
+
+        // Normal countdown
+        bigCountdownOverlay.classList.remove('active');
         const hours = Math.floor(diff / 3600000);
         const mins = Math.floor((diff % 3600000) / 60000);
         const secs = Math.floor((diff % 60000) / 1000);
 
-        newText = hours.toString().padStart(2, '0') + ':' +
+        const newText = hours.toString().padStart(2, '0') + ':' +
           mins.toString().padStart(2, '0') + ':' +
           secs.toString().padStart(2, '0');
 
@@ -1272,61 +1305,39 @@ app.get('/tv', (req, res) => {
     setInterval(updateStatus, 5000);  // Reduced from 2s to 5s to prevent flickering
     setInterval(updateCountdown, 1000);
 
-    // NYE Big Countdown - poll server and update locally
-    let lastDisplay = null;
-    const bigCountdownOverlay = document.getElementById('big-countdown');
-    const bigCountdownNum = document.getElementById('big-countdown-num');
-    const celebrationOverlay = document.getElementById('celebration');
-    const celebrationText = document.getElementById('celebration-text');
+    // Milestone reminders (triggered automatically based on time)
+    const shownReminders = {};
+    const REMINDERS = [
+      { mins: 60, text: '1 HOUR TO MIDNIGHT!' },
+      { mins: 30, text: '30 MINUTES TO GO!' },
+      { mins: 15, text: '15 MINUTES LEFT!' },
+      { mins: 5, text: '5 MINUTES!' },
+      { mins: 1, text: 'ONE MINUTE!' }
+    ];
 
-    async function checkNYECountdown() {
-      try {
-        const res = await fetch('/api/nye-countdown');
-        const data = await res.json();
-
-        if (data.display !== null) {
-          // Show countdown overlay
+    function checkReminders(diff) {
+      const minsLeft = Math.floor(diff / 60000);
+      for (const r of REMINDERS) {
+        if (minsLeft === r.mins && !shownReminders[r.mins]) {
+          shownReminders[r.mins] = true;
+          // Show reminder briefly
           bigCountdownOverlay.classList.add('active');
-
-          // Update display if changed
-          if (data.display !== lastDisplay) {
-            bigCountdownNum.textContent = data.display;
-            lastDisplay = data.display;
-
-            // Different styling for numbers vs text
-            if (data.isNumber) {
-              bigCountdownNum.classList.add('is-number');
-              bigCountdownNum.classList.remove('is-text');
-            } else {
-              bigCountdownNum.classList.add('is-text');
-              bigCountdownNum.classList.remove('is-number');
-            }
-
-            // Trigger pop animation
-            bigCountdownNum.style.animation = 'none';
-            bigCountdownNum.offsetHeight; // Force reflow
-            bigCountdownNum.style.animation = '';
-          }
-        } else if (data.showCelebration) {
-          // Hide countdown, show celebration
-          bigCountdownOverlay.classList.remove('active');
-          celebrationOverlay.classList.add('active', 'midnight-celebration');
-          celebrationText.innerHTML = '🎆 HAPPY NEW YEAR 2026! 🎆';
-          lastDisplay = null;
-        } else {
-          // Nothing active
-          bigCountdownOverlay.classList.remove('active');
-          celebrationOverlay.classList.remove('active', 'midnight-celebration');
-          lastDisplay = null;
+          bigCountdownNum.textContent = r.text;
+          bigCountdownNum.classList.remove('is-number');
+          bigCountdownNum.classList.add('is-text');
+          setTimeout(() => {
+            if (diff > 10000) bigCountdownOverlay.classList.remove('active');
+          }, 5000);
         }
-      } catch (e) {
-        console.error('Countdown check failed:', e);
       }
     }
 
-    // Check countdown once per second (reduced from 100ms to prevent flickering)
-    setInterval(checkNYECountdown, 1000);
-    checkNYECountdown();
+    // Check reminders every second along with countdown
+    setInterval(() => {
+      const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0);
+      const diff = targetUTC - Date.now();
+      if (diff > 10000) checkReminders(diff);
+    }, 1000);
   </script>`;
 
   // No page refresh - everything is handled by JS polling
