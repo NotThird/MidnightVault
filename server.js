@@ -951,6 +951,50 @@ app.get('/tv', (req, res) => {
       </div>
     </div>
 
+    <!-- Game Info Overlay (shows every 10 min for first 2 hours) -->
+    <div class="game-info-overlay" id="game-info">
+      <div class="game-info-content">
+        <h2>🔐 MIDNIGHT VAULT</h2>
+        <p class="info-intro">Work together to crack the vault before midnight!</p>
+
+        <div class="info-branches">
+          <div class="info-branch" style="--bc: #e74c3c">
+            <span class="info-icon">🧱</span>
+            <div class="info-text">
+              <strong>LEGO</strong>
+              <span>Build a Lego set, show the host for your first QR code</span>
+            </div>
+          </div>
+          <div class="info-branch" style="--bc: #9b59b6">
+            <span class="info-icon">🔍</span>
+            <div class="info-text">
+              <strong>HIDDEN</strong>
+              <span>Find the hidden QR codes around the house!</span>
+            </div>
+          </div>
+          <div class="info-branch" style="--bc: #3498db">
+            <span class="info-icon">🧩</span>
+            <div class="info-text">
+              <strong>JIGSAW</strong>
+              <span>Complete the jigsaw puzzle, show the host for your QR</span>
+            </div>
+          </div>
+          <div class="info-branch" style="--bc: #27ae60">
+            <span class="info-icon">📦</span>
+            <div class="info-text">
+              <strong>PUZZLE BOX</strong>
+              <span>Open the puzzle box to find the QR code inside</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-footer">
+          <p>📱 Scan QR codes with your phone to solve puzzles</p>
+          <p>🔢 Complete all 4 branches to unlock the vault code!</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Big Countdown Overlay (JS controlled) -->
     <div class="big-countdown-overlay" id="big-countdown">
       <div class="big-countdown-number" id="big-countdown-num"></div>
@@ -1362,6 +1406,34 @@ app.get('/tv', (req, res) => {
       const diff = targetUTC - Date.now();
       if (diff > 10000) checkReminders(diff);
     }, 1000);
+
+    // Game Info Overlay - shows for 10 min, hides for 10 min, for first 2 hours
+    const gameInfoOverlay = document.getElementById('game-info');
+    const gameInfoStartTime = Date.now();
+    const GAME_INFO_DURATION = 2 * 60 * 60 * 1000; // 2 hours in ms
+    const CYCLE_TIME = 10 * 60 * 1000; // 10 minutes in ms
+
+    function updateGameInfo() {
+      const elapsed = Date.now() - gameInfoStartTime;
+
+      // Stop showing after 2 hours
+      if (elapsed > GAME_INFO_DURATION) {
+        gameInfoOverlay.classList.remove('active');
+        return;
+      }
+
+      // 10 min on, 10 min off cycle
+      const cyclePosition = elapsed % (CYCLE_TIME * 2);
+      if (cyclePosition < CYCLE_TIME) {
+        gameInfoOverlay.classList.add('active');
+      } else {
+        gameInfoOverlay.classList.remove('active');
+      }
+    }
+
+    // Start with info visible, then check every 10 seconds
+    updateGameInfo();
+    setInterval(updateGameInfo, 10000);
   </script>`;
 
   // No page refresh - everything is handled by JS polling

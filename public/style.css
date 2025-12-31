@@ -1753,6 +1753,96 @@ body.tv-mode {
 }
 
 /* =============================================================================
+   GAME INFO OVERLAY (TV)
+   ============================================================================= */
+
+.game-info-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 26, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.game-info-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.game-info-content {
+  max-width: 800px;
+  padding: 3rem;
+  text-align: center;
+}
+
+.game-info-content h2 {
+  font-size: 3rem;
+  color: var(--accent-gold);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+.game-info-content .info-intro {
+  font-size: 1.4rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.info-branches {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-branch {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--bc);
+  text-align: left;
+}
+
+.info-branch .info-icon {
+  font-size: 2.5rem;
+}
+
+.info-branch .info-text strong {
+  display: block;
+  font-size: 1.2rem;
+  color: var(--bc);
+  margin-bottom: 0.25rem;
+}
+
+.info-branch .info-text span {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.info-footer {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-footer p {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin: 0.5rem 0;
+}
+
+/* =============================================================================
    LEGACY TV CINEMATIC (kept for reference)
    ============================================================================= */
 
