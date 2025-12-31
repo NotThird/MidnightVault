@@ -1776,21 +1776,81 @@ app.get('/admin/qr', (req, res) => {
       .qr-branch { padding: 0.25rem 0.75rem; border-radius: 6px; color: white; font-weight: 600; font-size: 0.85rem; }
       .qr-step { background: rgba(255,255,255,0.1); padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.85rem; }
       .qr-id { color: var(--text-secondary); font-size: 0.85rem; padding: 0.25rem 0.5rem; }
-      .qr-code { margin: 1rem 0; display: flex; justify-content: center; }
-      .qr-code canvas { border-radius: 8px; }
+      .qr-code { margin: 0.5rem 0; display: flex; justify-content: center; }
+      .qr-code canvas, .qr-code img { border-radius: 8px; }
       .qr-location { font-size: 1.1rem; font-weight: 600; color: var(--accent-gold); margin: 0.5rem 0; }
       .qr-url { font-size: 0.7rem; color: var(--text-secondary); word-break: break-all; }
 
+      /* STICKER PRINT MODE */
       @media print {
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         .no-print { display: none !important; }
-        body { background: white !important; color: black !important; }
-        .qr-page { padding: 0; }
-        .qr-card { border-color: #333 !important; background: white !important; }
-        .qr-branch { color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .qr-step { background: #eee !important; color: black !important; }
-        .qr-location { color: #333 !important; }
-        .qr-url { color: #666 !important; }
-        .qr-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+        body { background: white !important; color: black !important; margin: 0; padding: 0; }
+        .qr-page { padding: 0; max-width: none; }
+        .qr-title, .qr-instructions { display: none; }
+
+        .qr-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 2.5in);
+          gap: 0.2in;
+          justify-content: center;
+        }
+
+        .qr-card {
+          width: 2.5in;
+          height: 3in;
+          padding: 0.15in;
+          margin: 0;
+          border: 2px solid #333 !important;
+          border-radius: 8px;
+          background: white !important;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: space-between;
+          page-break-inside: avoid;
+          box-sizing: border-box;
+        }
+
+        .qr-header {
+          margin-bottom: 0.1in;
+          gap: 0.1in;
+        }
+
+        .qr-branch {
+          font-size: 10pt;
+          padding: 2px 8px;
+        }
+
+        .qr-step {
+          background: #eee !important;
+          color: black !important;
+          font-size: 9pt;
+          padding: 2px 6px;
+        }
+
+        .qr-id { display: none; }
+
+        .qr-code {
+          margin: 0.05in 0;
+        }
+
+        .qr-code canvas, .qr-code img {
+          width: 1.8in !important;
+          height: 1.8in !important;
+        }
+
+        .qr-location {
+          color: #000 !important;
+          font-size: 12pt;
+          font-weight: 700;
+          margin: 0.05in 0;
+        }
+
+        .qr-url {
+          font-size: 7pt;
+          color: #666 !important;
+        }
       }
     </style>
   `;
