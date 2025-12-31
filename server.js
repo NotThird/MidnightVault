@@ -1091,9 +1091,10 @@ app.get('/tv', (req, res) => {
       try {
         const res = await fetch('/api/nye-countdown');
         const data = await res.json();
-        if (data.display !== null && typeof data.display === 'number') {
+        // Admin triggered if display is not null
+        if (data.display !== null) {
           testMode = true;
-          testStartTime = Date.now() - ((10 - data.display) * 1000);
+          testStartTime = Date.now(); // Start 10-second countdown immediately
         }
       } catch (e) {}
     }

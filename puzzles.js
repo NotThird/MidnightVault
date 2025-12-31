@@ -110,8 +110,8 @@ const PUZZULAR = [
     step: 1,
     title: 'Word Puzzle 1',
     location_hint: 'Complete the jigsaw, show the host!',
-    prompt: 'Unscramble: YORTALS TIWSF (Famous singer)',
-    answer: 'TAYLOR SWIFT',
+    prompt: 'Unscramble: SREA (Taylor\'s concert tour)',
+    answer: 'ERAS',
     collectLetters: ['F', 'E', 'A'],
     successMessage: 'Collect these letters: F, E, A - Write them down!'
   },
@@ -121,8 +121,8 @@ const PUZZULAR = [
     step: 2,
     title: 'Word Puzzle 2',
     location_hint: 'Check the coffee table',
-    prompt: 'Fill in the blank: Taylor\'s debut album was ______ (same as her name)',
-    answer: 'TAYLOR SWIFT',
+    prompt: 'Unscramble: VEROL (A Taylor album about romance)',
+    answer: 'LOVER',
     collectLetters: ['R', 'L', 'E'],
     successMessage: 'Collect these letters: R, L, E - Add them to your list!'
   },
@@ -138,33 +138,40 @@ const PUZZULAR = [
     successMessage: 'FEARLESS! You conquered the JIGSAW word puzzles!'
   },
 
-  // PUZZLE BOX branch (P1, P2, P3) - Open puzzle box to get QR1
+  // PUZZLE BOX branch (P1, P2, P3) - Riddles, collect letters → AGAIN
+  // Open puzzle box to get QR1. Each puzzle is a riddle.
   {
     id: 10,
     branch: 'P',
     step: 1,
-    title: 'Puzzle Box 1',
+    title: 'Riddle 1',
     location_hint: 'Inside the puzzle box',
-    prompt: 'What do you call the back-of-book list used to find topics?',
-    answer: 'INDEX'
+    prompt: 'I come once a year, but I\'m never the same. Each time I arrive, you\'re a year older by name. What am I?',
+    answer: 'BIRTHDAY',
+    collectLetters: ['A', 'G'],
+    successMessage: 'Collect these letters: A, G - Write them down!'
   },
   {
     id: 11,
     branch: 'P',
     step: 2,
-    title: 'Puzzle Box 2',
+    title: 'Riddle 2',
     location_hint: 'Behind the couch',
-    prompt: 'At midnight we pop these, drink up, and toast. What bubbly beverage do we love the most?',
-    answer: 'CHAMPAGNE'
+    prompt: 'Taylor sings "We Are Never Getting Back Together" - what\'s another word for "getting back together"?',
+    answer: 'REUNITING',
+    collectLetters: ['A', 'I'],
+    successMessage: 'Collect these letters: A, I - Add them to your list!'
   },
   {
     id: 12,
     branch: 'P',
     step: 3,
-    title: 'Puzzle Box 3',
+    title: 'Riddle 3',
     location_hint: 'Check the bookshelf',
-    prompt: 'I fall on January 1st, but I never get hurt. What am I?',
-    answer: 'NEW YEARS DAY'
+    prompt: 'Unscramble your 5 letters (A,G,A,I,N). Taylor has a song "Begin ______"',
+    answer: 'AGAIN',
+    collectLetters: ['N'],
+    successMessage: 'AGAIN! You solved the PUZZLE BOX riddles!'
   },
 
   // SUPER HIDDEN PRIZE - Special bonus QR for top earner
