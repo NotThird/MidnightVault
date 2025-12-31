@@ -82,17 +82,21 @@ function layout(title, content, options = {}) {
 // 1. That puzzle has been solved globally (you found it), OR
 // 2. The previous step in the SAME branch has been solved globally (hint unlocked)
 // 3. It's Step 1 (always visible - entry points)
+// 4. HIDDEN branch (H) is always accessible - no chain locking (scavenger hunt style)
 function isLocationVisible(puzzle, globalSolvedIds) {
+  // HIDDEN branch is special: all puzzles are independent (find any, solve any)
+  if (puzzle.branch === 'H') return true;
+
   // Step 1 locations are always visible - they're the entry points
   if (puzzle.step === 1) return true;
-  
+
   // If this puzzle is already solved, location is obviously known
   if (globalSolvedIds.includes(puzzle.id)) return true;
-  
+
   // Check if previous step in same branch is solved
   const prevPuzzle = puzzles.getPuzzleByBranchStep(puzzle.branch, puzzle.step - 1);
   if (prevPuzzle && globalSolvedIds.includes(prevPuzzle.id)) return true;
-  
+
   return false;
 }
 
@@ -887,28 +891,28 @@ app.get('/tv', (req, res) => {
 
       <!-- Branch Cards -->
       <div class="sidebar-branches">
-        <div class="sidebar-branch" id="branch-F" style="--branch-color: #e74c3c">
-          <span class="branch-icon">&#127860;</span>
-          <span class="branch-name">FOOD</span>
-          <div class="branch-dots" id="dots-F"></div>
+        <div class="sidebar-branch" id="branch-L" style="--branch-color: #e74c3c">
+          <span class="branch-icon">🧱</span>
+          <span class="branch-name">LEGO</span>
+          <div class="branch-dots" id="dots-L"></div>
           <span class="branch-check">&#10004;</span>
         </div>
-        <div class="sidebar-branch" id="branch-M" style="--branch-color: #9b59b6">
-          <span class="branch-icon">&#127926;</span>
-          <span class="branch-name">MUSIC</span>
-          <div class="branch-dots" id="dots-M"></div>
+        <div class="sidebar-branch" id="branch-H" style="--branch-color: #9b59b6">
+          <span class="branch-icon">🔍</span>
+          <span class="branch-name">HIDDEN</span>
+          <div class="branch-dots" id="dots-H"></div>
           <span class="branch-check">&#10004;</span>
         </div>
-        <div class="sidebar-branch" id="branch-D" style="--branch-color: #3498db">
-          <span class="branch-icon">&#127880;</span>
-          <span class="branch-name">DECOR</span>
-          <div class="branch-dots" id="dots-D"></div>
+        <div class="sidebar-branch" id="branch-J" style="--branch-color: #3498db">
+          <span class="branch-icon">🧩</span>
+          <span class="branch-name">JIGSAW</span>
+          <div class="branch-dots" id="dots-J"></div>
           <span class="branch-check">&#10004;</span>
         </div>
-        <div class="sidebar-branch" id="branch-B" style="--branch-color: #27ae60">
-          <span class="branch-icon">&#128218;</span>
-          <span class="branch-name">BOOKS</span>
-          <div class="branch-dots" id="dots-B"></div>
+        <div class="sidebar-branch" id="branch-P" style="--branch-color: #27ae60">
+          <span class="branch-icon">📦</span>
+          <span class="branch-name">PUZZLE BOX</span>
+          <div class="branch-dots" id="dots-P"></div>
           <span class="branch-check">&#10004;</span>
         </div>
       </div>
