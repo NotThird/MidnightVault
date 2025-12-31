@@ -990,19 +990,33 @@ app.get('/tv', (req, res) => {
       setTimeout(() => overlay.classList.remove('active'), 4000);
     }
 
+    // Cache previous values to prevent unnecessary DOM updates (reduces flicker)
+    let prevData = {};
+
+    function updateIfChanged(el, prop, value) {
+      if (el[prop] !== value) {
+        el[prop] = value;
+      }
+    }
+
     async function updateStatus() {
       try {
         const res = await fetch('/api/status');
         const data = await res.json();
 
-        // Progress Ring
-        const ring = document.getElementById('progress-ring');
-        const circumference = 2 * Math.PI * 90;
-        const offset = circumference - (data.globalPct / 100) * circumference;
-        ring.style.strokeDasharray = circumference;
-        ring.style.strokeDashoffset = offset;
+        // Progress Ring - only update if changed
+        if (prevData.globalPct !== data.globalPct) {
+          const ring = document.getElementById('progress-ring');
+          const circumference = 2 * Math.PI * 90;
+          const offset = circumference - (data.globalPct / 100) * circumference;
+          ring.style.strokeDasharray = circumference;
+          ring.style.strokeDashoffset = offset;
+        }
 
-        document.getElementById('solved-count').textContent = data.globalSolved;
+        // Solved count - only update if changed
+        if (prevData.globalSolved !== data.globalSolved) {
+          document.getElementById('solved-count').textContent = data.globalSolved;
+        }
 
         // Check for new solve celebration
         if (data.globalSolved > lastSolvedCount && lastSolvedCount > 0) {
@@ -1010,16 +1024,22 @@ app.get('/tv', (req, res) => {
         }
         lastSolvedCount = data.globalSolved;
 
-        // Branch Cards
+        // Branch Cards - only update if status changed
         const completedNow = [];
         for (const b of BRANCH_ORDER) {
           const status = data.branchStatus[b];
+          const prevStatus = prevData.branchStatus ? prevData.branchStatus[b] : null;
           const card = document.getElementById('branch-' + b);
           const dotsEl = document.getElementById('dots-' + b);
 
-          dotsEl.innerHTML = status.steps.map((solved, i) =>
-            '<span class="step-pip ' + (solved ? 'solved' : '') + '">' + (i+1) + '</span>'
-          ).join('');
+          // Only update dots if steps changed
+          const stepsKey = status.steps.join(',');
+          const prevStepsKey = prevStatus ? prevStatus.steps.join(',') : '';
+          if (stepsKey !== prevStepsKey) {
+            dotsEl.innerHTML = status.steps.map((solved, i) =>
+              '<span class="step-pip ' + (solved ? 'solved' : '') + '">' + (i+1) + '</span>'
+            ).join('');
+          }
 
           if (status.done) {
             card.classList.add('complete');
@@ -1037,46 +1057,56 @@ app.get('/tv', (req, res) => {
         }
         lastCompletedBranches = completedNow;
 
-        // Hub/Vault Status
-        const hubBox = document.getElementById('hub-box');
-        const vaultBox = document.getElementById('vault-box');
-        const hubIcon = document.getElementById('hub-icon');
-        const vaultIcon = document.getElementById('vault-icon');
-        const vaultLock = document.getElementById('vault-lock');
-
-        if (data.hubUnlocked) {
+        // Hub/Vault Status - only update on change
+        if (data.hubUnlocked && !prevData.hubUnlocked) {
+          const hubBox = document.getElementById('hub-box');
+          const hubIcon = document.getElementById('hub-icon');
           hubBox.classList.add('unlocked');
           hubIcon.innerHTML = '&#128275;';
         }
-        if (data.metaUnlocked) {
+        if (data.metaUnlocked && !prevData.metaUnlocked) {
+          const vaultBox = document.getElementById('vault-box');
+          const vaultIcon = document.getElementById('vault-icon');
+          const vaultLock = document.getElementById('vault-lock');
           vaultBox.classList.add('unlocked');
           vaultIcon.innerHTML = '&#128275;';
           vaultLock.innerHTML = '&#128275;';
         }
 
-        // Digits
-        const digitsSection = document.getElementById('digits-section');
-        if (data.hubUnlocked && data.digits) {
+        // Digits - only update on change
+        if (data.hubUnlocked && data.digits && prevData.digits !== data.digits) {
+          const digitsSection = document.getElementById('digits-section');
           digitsSection.classList.add('visible');
           document.getElementById('digits-display').textContent = data.digits;
         }
 
-        // MVP
+        // MVP - only update if changed
         if (data.contributors.length > 0) {
           const mvp = data.contributors[0];
-          document.getElementById('mvp-name').textContent = mvp.nickname + ' (' + mvp.solves + ')';
+          const mvpText = mvp.nickname + ' (' + mvp.solves + ')';
+          const mvpEl = document.getElementById('mvp-name');
+          if (mvpEl.textContent !== mvpText) {
+            mvpEl.textContent = mvpText;
+          }
         }
 
-        // Recent Feed
-        const feedHtml = data.recent.slice(0, 8).map(r => {
-          const time = new Date(r.solved_at + 'Z').toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-          return '<span class="feed-item"><span class="feed-time">' + time + '</span> ' +
-                 '<span class="feed-name">' + escapeHtml(r.nickname) + '</span> solved <span class="feed-puzzle">' + r.branch + r.step + '</span></span>';
-        }).join('');
-        document.getElementById('recent-feed').innerHTML = feedHtml;
+        // Recent Feed - only update if changed
+        const feedKey = data.recent.slice(0, 8).map(r => r.id).join(',');
+        const prevFeedKey = prevData.recent ? prevData.recent.slice(0, 8).map(r => r.id).join(',') : '';
+        if (feedKey !== prevFeedKey) {
+          const feedHtml = data.recent.slice(0, 8).map(r => {
+            const time = new Date(r.solved_at + 'Z').toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            return '<span class="feed-item"><span class="feed-time">' + time + '</span> ' +
+                   '<span class="feed-name">' + escapeHtml(r.nickname) + '</span> solved <span class="feed-puzzle">' + r.branch + r.step + '</span></span>';
+          }).join('');
+          document.getElementById('recent-feed').innerHTML = feedHtml;
+        }
 
         // Update evil vault taunt
         updateTaunt(data.globalSolved, data.hubUnlocked, data.metaUnlocked);
+
+        // Cache current data for next comparison
+        prevData = data;
 
       } catch (e) {
         console.error('Update failed:', e);
