@@ -12,7 +12,7 @@ const BRANCH_ORDER = ['L', 'H', 'J', 'P'];
 // Branch metadata
 const BRANCHES = {
   L: { name: 'LEGO', icon: '🧱', color: '#e74c3c', digits: [4, 1], codeWord: 'MIDNIGHT', hint: 'Build a Lego set, show the host' },
-  H: { name: 'HIDDEN', icon: '🔍', color: '#9b59b6', digits: [8, 2], codeWord: 'BREAK', hint: 'Find all 4 hidden QR codes!' },
+  H: { name: 'HIDDEN', icon: '🔍', color: '#9b59b6', digits: [8, 2], codeWord: 'BREAK', hint: 'Find the hidden QR codes!' },
   J: { name: 'JIGSAW', icon: '🧩', color: '#3498db', digits: [0, 9], codeWord: 'FEARLESS', hint: 'Complete the jigsaw, show the host' },
   P: { name: 'PUZZLE BOX', icon: '📦', color: '#27ae60', digits: [5, 3], codeWord: 'AGAIN', hint: 'Open the puzzle box to get QR' },
   X: { name: 'SUPER PRIZE', icon: '⭐', color: '#f1c40f', digits: [], codeWord: '', hint: 'Super secret bonus!' }
@@ -63,44 +63,40 @@ const PUZZULAR = [
     successMessage: 'MIDNIGHT! You cracked the LEGO chain!'
   },
 
-  // HIDDEN branch (H1, H2, H3, H4) - All 4 QRs physically hidden, scavenger hunt style
-  // Puzzles are easy - the challenge is FINDING the QR codes. Clues lead to next location.
-  // User will provide actual hiding spots and clues later
+  // HIDDEN branch (H1, H2, H3) - Find hidden QRs, collect letters → BREAK
+  // User will set actual hiding spots. Each puzzle gives letters.
   {
     id: 4,
     branch: 'H',
     step: 1,
     title: 'Hidden Hunt 1',
-    location_hint: 'TBD - user will set hiding spot',
-    prompt: 'You found the first one! Answer this to get a clue to the next.',
-    answer: 'TBD'
+    location_hint: 'TBD - first hidden spot (kinda obvious)',
+    prompt: 'You found it! What Taylor song says "Band-aids don\'t fix bullet holes"?',
+    answer: 'BAD BLOOD',
+    collectLetters: ['B', 'R'],
+    successMessage: 'Collect these letters: B, R - Write them down!'
   },
   {
     id: 5,
     branch: 'H',
     step: 2,
     title: 'Hidden Hunt 2',
-    location_hint: 'TBD - clue from puzzle 1',
-    prompt: 'Nice hunting! Answer this for the next clue.',
-    answer: 'TBD'
+    location_hint: 'TBD - second hidden spot',
+    prompt: 'Nice find! Taylor\'s song about a scarf left behind is "All Too ____"',
+    answer: 'WELL',
+    collectLetters: ['E', 'A'],
+    successMessage: 'Collect these letters: E, A - Add to your list!'
   },
   {
     id: 6,
     branch: 'H',
     step: 3,
     title: 'Hidden Hunt 3',
-    location_hint: 'TBD - clue from puzzle 2',
-    prompt: 'Getting close! Answer for the final clue.',
-    answer: 'TBD'
-  },
-  {
-    id: 13,
-    branch: 'H',
-    step: 4,
-    title: 'Hidden Hunt 4',
-    location_hint: 'TBD - clue from puzzle 3',
-    prompt: 'Final hidden QR! Unscramble your letters to complete the branch.',
-    answer: 'BREAK'
+    location_hint: 'TBD - third hidden spot',
+    prompt: 'Unscramble your 5 letters (B,R,E,A,K) - Taylor says "we are never getting back together" after a ____',
+    answer: 'BREAK',
+    collectLetters: ['K'],
+    successMessage: 'BREAK! You found all the hidden QRs!'
   },
 
   // JIGSAW branch (J1, J2, J3) - Word puzzles, collect letters → FEARLESS
