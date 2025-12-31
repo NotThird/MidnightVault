@@ -713,7 +713,7 @@ app.get('/tv', (req, res) => {
   }
   const isLive = req.query.live !== '0'; // Default to live mode, use ?live=0 to loop
   const videoParams = isLive
-    ? 'autoplay=1&mute=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1'
+    ? 'autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1'
     : `autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&vq=hd1080`;
 
   const content = `
