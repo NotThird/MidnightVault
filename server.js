@@ -177,61 +177,185 @@ app.post('/set-nickname', ensureParticipant, (req, res) => {
   res.redirect('/');
 });
 
-// GET /me - Personal progress
+// GET /me - Personal progress (read-only status view)
 app.get('/me', ensureParticipant, (req, res) => {
   const participant = req.participant;
   const solvedIds = db.getParticipantSolvedPuzzles(participant.id);
   const globalSolvedIds = db.getGlobalSolvedPuzzleIds();
-  
-  const puzzleList = puzzles.BRANCH_ORDER.map(branch => {
-    const branchPuzzles = puzzles.getPuzzlesByBranch(branch).map(p => puzzles.getPuzzleWithOverrides(p.id, db));
+
+  // Build branch progress cards (read-only, no links)
+  const branchCards = puzzles.BRANCH_ORDER.map(branch => {
+    const branchPuzzles = puzzles.getPuzzlesByBranch(branch);
     const info = puzzles.BRANCHES[branch];
-    
-    const items = branchPuzzles.map((p, idx) => {
-      const userSolved = solvedIds.includes(p.id);
-      const globalSolved = globalSolvedIds.includes(p.id);
-      const prevSolved = idx === 0 || globalSolvedIds.includes(branchPuzzles[idx - 1].id);
-      const unlocked = prevSolved;
-      const locationVisible = isLocationVisible(p, globalSolvedIds);
-      
-      return `
-        <li class="${userSolved ? 'solved' : ''} ${!unlocked ? 'locked' : ''}">
-          <a href="${unlocked ? `/p/${p.id}` : '#'}">
-            <span class="puzzle-step">Step ${p.step}</span>
-            <span class="puzzle-loc">${locationVisible ? escapeHtml(p.location_hint) : '???'}</span>
-            ${userSolved ? '<span class="badge badge-success">Solved</span>' : 
-              globalSolved ? '<span class="badge badge-global">Global</span>' :
-              !unlocked ? '<span class="badge badge-locked">Locked</span>' :
-              '<span class="badge badge-pending">Open</span>'}
-          </a>
-        </li>`;
-    }).join('');
-    
+
+    const solvedCount = branchPuzzles.filter(p => globalSolvedIds.includes(p.id)).length;
+    const isComplete = solvedCount === 3;
+    const digitsEarned = isComplete ? info.digits.join('') : '--';
+
+    // Progress dots
+    const dots = [0, 1, 2].map(i =>
+      `<span class="progress-dot ${i < solvedCount ? 'filled' : ''}"></span>`
+    ).join('');
+
     return `
-      <div class="branch-section" style="--branch-color: ${info.color}">
-        <h4>${info.name}</h4>
-        <ul class="puzzle-list-branch">${items}</ul>
+      <div class="branch-card ${isComplete ? 'complete' : ''}" style="--branch-color: ${info.color}">
+        <div class="branch-header">
+          <span class="branch-icon">${info.icon}</span>
+          <span class="branch-name">${info.name}</span>
+        </div>
+        <div class="branch-progress">
+          <div class="progress-dots">${dots}</div>
+          <span class="progress-text">${solvedCount}/3</span>
+        </div>
+        <div class="branch-digits ${isComplete ? 'earned' : ''}">
+          ${isComplete ? `+${digitsEarned}` : escapeHtml(info.hint)}
+        </div>
       </div>`;
   }).join('');
-  
+
+  // Compute digits collected so far
+  const completedBranches = puzzles.BRANCH_ORDER.filter(branch => {
+    const branchPuzzles = puzzles.getPuzzlesByBranch(branch);
+    return branchPuzzles.every(p => globalSolvedIds.includes(p.id));
+  });
+  const digitDisplay = puzzles.BRANCH_ORDER.map(branch => {
+    const info = puzzles.BRANCHES[branch];
+    const branchPuzzles = puzzles.getPuzzlesByBranch(branch);
+    const isComplete = branchPuzzles.every(p => globalSolvedIds.includes(p.id));
+    return isComplete ? info.digits.map(d => `<span class="digit earned">${d}</span>`).join('')
+                      : '<span class="digit">_</span><span class="digit">_</span>';
+  }).join('');
+
   const content = `
   <div class="container phone-first">
     <header>
       <a href="/" class="back-link">&larr; Home</a>
       <h1>My Progress</h1>
     </header>
-    
-    <section class="card">
+
+    <section class="card stats-card">
       <h2>${escapeHtml(participant.nickname)}</h2>
       <p class="big-stat">${solvedIds.length} / 12 puzzles solved</p>
       <p class="sub-stat">${solvedIds.length} raffle entries!</p>
     </section>
-    
-    <section class="branches-progress">
-      ${puzzleList}
+
+    <section class="branches-grid">
+      ${branchCards}
     </section>
-  </div>`;
-  
+
+    <section class="card digits-card">
+      <h3>Vault Digits Collected</h3>
+      <div class="digit-display">${digitDisplay}</div>
+      <p class="hint-text">Complete all 4 branches to unlock the vault!</p>
+    </section>
+
+    <section class="card info-card">
+      <p><strong>Scan QR codes</strong> to solve puzzles</p>
+      <p>Each branch starts with a physical puzzle to find QR #1</p>
+    </section>
+  </div>
+
+  <style>
+    .branches-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .branch-card {
+      background: var(--card-bg, #1a1a2e);
+      border-radius: 12px;
+      padding: 16px;
+      border-left: 4px solid var(--branch-color);
+    }
+    .branch-card.complete {
+      background: linear-gradient(135deg, var(--branch-color)22, var(--card-bg, #1a1a2e));
+    }
+    .branch-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .branch-icon {
+      font-size: 1.5rem;
+    }
+    .branch-name {
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+    .branch-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .progress-dots {
+      display: flex;
+      gap: 4px;
+    }
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #333;
+      border: 2px solid var(--branch-color);
+    }
+    .progress-dot.filled {
+      background: var(--branch-color);
+    }
+    .progress-text {
+      font-size: 0.9rem;
+      color: #888;
+    }
+    .branch-digits {
+      font-size: 0.75rem;
+      color: #666;
+    }
+    .branch-digits.earned {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--branch-color);
+    }
+    .digits-card {
+      text-align: center;
+    }
+    .digit-display {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 12px 0;
+    }
+    .digit {
+      width: 32px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #222;
+      border-radius: 6px;
+      font-size: 1.4rem;
+      font-family: monospace;
+      color: #555;
+    }
+    .digit.earned {
+      background: #2a4a2a;
+      color: #4ade80;
+      font-weight: bold;
+    }
+    .hint-text {
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .info-card {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    .info-card p {
+      margin: 8px 0;
+    }
+  </style>`;
+
   res.send(layout('My Progress', content));
 });
 

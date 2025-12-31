@@ -7,135 +7,136 @@
  */
 
 // Branch order for digit concatenation
-const BRANCH_ORDER = ['F', 'M', 'D', 'B'];
+const BRANCH_ORDER = ['L', 'H', 'J', 'P'];
 
 // Branch metadata
 const BRANCHES = {
-  F: { name: 'FOOD', color: '#e74c3c', digits: [4, 1] },
-  M: { name: 'MUSIC', color: '#9b59b6', digits: [8, 2] },
-  D: { name: 'DECOR', color: '#3498db', digits: [0, 9] },
-  B: { name: 'BOOKS', color: '#27ae60', digits: [5, 3] }
+  L: { name: 'LEGO', icon: '🧱', color: '#e74c3c', digits: [4, 1], hint: 'Build the Lego to find the first QR' },
+  H: { name: 'HIDDEN', icon: '🔍', color: '#9b59b6', digits: [8, 2], hint: 'Search carefully to find the hidden QR' },
+  J: { name: 'JIGSAW', icon: '🧩', color: '#3498db', digits: [0, 9], hint: 'Complete the jigsaw to reveal the first QR' },
+  P: { name: 'PUZZLE BOX', icon: '📦', color: '#27ae60', digits: [5, 3], hint: 'Open the puzzle box to get the first QR' }
 };
 
 // Permutation key (1-indexed positions) - revealed at hub
 const PERMUTATION_KEY = '26153478';
 
 // 12 puzzles: 3 per branch, sequential steps within each branch
+// Physical puzzle (Lego/Hidden/Jigsaw/Puzzle Box) reveals QR1, then chain continues
 const PUZZULAR = [
-  // FOOD branch (F1, F2, F3)
+  // LEGO branch (L1, L2, L3) - Build lego to find QR1
   {
     id: 1,
-    branch: 'F',
+    branch: 'L',
     step: 1,
-    title: 'Food Puzzle 1',
-    location_hint: 'Fridge',
+    title: 'Lego Puzzle 1',
+    location_hint: 'Inside the completed Lego build',
     prompt: 'Caesar cipher +3: Decode "SODBOLVW"',
     answer: 'PLAYLIST'
   },
   {
     id: 2,
-    branch: 'F',
+    branch: 'L',
     step: 2,
-    title: 'Food Puzzle 2',
-    location_hint: 'Snack Table',
-    prompt: 'Read the acrostic on the card nearby. The first letters of each line spell a 4-letter word.',
-    answer: 'FOOD'
+    title: 'Lego Puzzle 2',
+    location_hint: 'TBD',
+    prompt: 'TBD',
+    answer: 'TBD'
   },
   {
     id: 3,
-    branch: 'F',
+    branch: 'L',
     step: 3,
-    title: 'Food Puzzle 3',
-    location_hint: 'Drink Cooler',
-    prompt: 'Riddle: "Twelve at midnight, sweet and round, a Spanish tradition that astounds."',
-    answer: 'GRAPES'
+    title: 'Lego Puzzle 3',
+    location_hint: 'TBD',
+    prompt: 'TBD',
+    answer: 'TBD'
   },
 
-  // MUSIC branch (M1, M2, M3)
+  // HIDDEN branch (H1, H2, H3) - Find the hidden QR1
   {
     id: 4,
-    branch: 'M',
+    branch: 'H',
     step: 1,
-    title: 'Music Puzzle 1',
-    location_hint: 'Speaker',
+    title: 'Hidden Puzzle 1',
+    location_hint: 'Somewhere hidden...',
     prompt: 'What part of a song repeats the most?',
     answer: 'CHORUS'
   },
   {
     id: 5,
-    branch: 'M',
+    branch: 'H',
     step: 2,
-    title: 'Music Puzzle 2',
-    location_hint: 'TV Remote',
-    prompt: 'Unscramble: OPMET',
-    answer: 'TEMPO'
+    title: 'Hidden Puzzle 2',
+    location_hint: 'TBD',
+    prompt: 'TBD',
+    answer: 'TBD'
   },
   {
     id: 6,
-    branch: 'M',
+    branch: 'H',
     step: 3,
-    title: 'Music Puzzle 3',
-    location_hint: 'Playlist QR',
-    prompt: 'Look at the playlist posted nearby. The first letters of the first 6 song titles spell what word?',
-    answer: 'COUNTDOWN'
+    title: 'Hidden Puzzle 3',
+    location_hint: 'TBD',
+    prompt: 'TBD',
+    answer: 'TBD'
   },
 
-  // DECOR branch (D1, D2, D3)
+  // JIGSAW branch (J1, J2, J3) - Complete jigsaw to reveal QR1
   {
     id: 7,
-    branch: 'D',
+    branch: 'J',
     step: 1,
-    title: 'Decor Puzzle 1',
-    location_hint: 'Garland Tag',
+    title: 'Jigsaw Puzzle 1',
+    location_hint: 'On the completed jigsaw',
     prompt: 'Unscramble: RAELGND',
     answer: 'GARLAND'
   },
   {
     id: 8,
-    branch: 'D',
+    branch: 'J',
     step: 2,
-    title: 'Decor Puzzle 2',
-    location_hint: 'Balloons',
-    prompt: 'Rebus puzzle: What do you get when party poppers go off?',
-    answer: 'CONFETTI'
+    title: 'Jigsaw Puzzle 2',
+    location_hint: 'TBD',
+    prompt: 'TBD',
+    answer: 'TBD'
   },
   {
     id: 9,
-    branch: 'D',
+    branch: 'J',
     step: 3,
-    title: 'Decor Puzzle 3',
-    location_hint: 'Mantle / Decor Shelf',
-    prompt: 'Party staple that floats and pops (singular)',
-    answer: 'BALLOON'
+    title: 'Jigsaw Puzzle 3',
+    location_hint: 'TBD',
+    prompt: 'TBD',
+    answer: 'TBD'
   },
 
-  // BOOKS branch (B1, B2, B3)
+  // PUZZLE BOX branch (P1, P2, P3) - Open puzzle box to get QR1
   {
     id: 10,
-    branch: 'B',
+    branch: 'P',
     step: 1,
-    title: 'Books Puzzle 1',
-    location_hint: 'Bookshelf Label "INDEX"',
+    title: 'Puzzle Box 1',
+    location_hint: 'Inside the puzzle box',
     prompt: 'What do you call the back-of-book list used to find topics?',
     answer: 'INDEX'
   },
   {
     id: 11,
-    branch: 'B',
+    branch: 'P',
     step: 2,
-    title: 'Books Puzzle 2',
-    location_hint: 'Bookmark in a Book',
-    prompt: 'A book is divided into these numbered sections.',
-    answer: 'CHAPTER'
+    title: 'Puzzle Box 2',
+    location_hint: 'TBD',
+    prompt: 'TBD',
+    answer: 'TBD'
   },
   {
     id: 12,
-    branch: 'B',
+    branch: 'P',
     step: 3,
-    title: 'Books Puzzle 3',
-    location_hint: 'Spine-Facing Shelf',
-    prompt: 'The part of a book you see when it sits on a shelf.',
-    answer: 'SPINE'
+    title: 'Puzzle Box 3',
+    location_hint: 'TBD',
+    prompt: 'TBD',
+    answer: 'TBD'
   }
 ];
 

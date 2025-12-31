@@ -1390,11 +1390,13 @@ body.tv-mode {
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85);
   padding: 1.5vh 3vw;
   border-radius: 12px;
   border: 2px solid var(--accent-gold);
   backdrop-filter: blur(10px);
+  z-index: 100;
+  pointer-events: none;
 }
 
 .tv-countdown-overlay .nye-label {
