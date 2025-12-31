@@ -38,18 +38,18 @@ const PUZZULAR = [
     branch: 'L',
     step: 2,
     title: 'Lego Puzzle 2',
-    location_hint: 'TBD',
-    prompt: 'TBD',
-    answer: 'TBD'
+    location_hint: 'Check near the snacks',
+    prompt: 'Unscramble these letters: TPARTY',
+    answer: 'PARTY'
   },
   {
     id: 3,
     branch: 'L',
     step: 3,
     title: 'Lego Puzzle 3',
-    location_hint: 'TBD',
-    prompt: 'TBD',
-    answer: 'TBD'
+    location_hint: 'Look by the window',
+    prompt: 'I tick but have no hands, I ring but have no bell. At midnight I am the star. What am I?',
+    answer: 'CLOCK'
   },
 
   // HIDDEN branch (H1, H2, H3) - All QRs physically hidden, scavenger hunt style
@@ -97,18 +97,18 @@ const PUZZULAR = [
     branch: 'J',
     step: 2,
     title: 'Jigsaw Puzzle 2',
-    location_hint: 'TBD',
-    prompt: 'TBD',
-    answer: 'TBD'
+    location_hint: 'Check the coffee table',
+    prompt: 'What 4-letter word means both "to jump" and "a year with 366 days"?',
+    answer: 'LEAP'
   },
   {
     id: 9,
     branch: 'J',
     step: 3,
     title: 'Jigsaw Puzzle 3',
-    location_hint: 'TBD',
-    prompt: 'TBD',
-    answer: 'TBD'
+    location_hint: 'Near the TV',
+    prompt: 'Unscramble: HEWN YARE',
+    answer: 'NEW YEAR'
   },
 
   // PUZZLE BOX branch (P1, P2, P3) - Open puzzle box to get QR1
@@ -126,18 +126,18 @@ const PUZZULAR = [
     branch: 'P',
     step: 2,
     title: 'Puzzle Box 2',
-    location_hint: 'TBD',
-    prompt: 'TBD',
-    answer: 'TBD'
+    location_hint: 'Behind the couch',
+    prompt: 'At midnight we pop these, drink up, and toast. What bubbly beverage do we love the most?',
+    answer: 'CHAMPAGNE'
   },
   {
     id: 12,
     branch: 'P',
     step: 3,
     title: 'Puzzle Box 3',
-    location_hint: 'TBD',
-    prompt: 'TBD',
-    answer: 'TBD'
+    location_hint: 'Check the bookshelf',
+    prompt: 'I fall on January 1st, but I never get hurt. What am I?',
+    answer: 'NEW YEARS DAY'
   }
 ];
 

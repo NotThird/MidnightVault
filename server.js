@@ -1080,13 +1080,26 @@ app.get('/tv', (req, res) => {
     const celebrationOverlay = document.getElementById('celebration');
     const celebrationText = document.getElementById('celebration-text');
 
+    // TEST MODE: /tv?test=1 triggers immediate 10-second countdown
+    const urlParams = new URLSearchParams(window.location.search);
+    const testMode = urlParams.get('test') === '1';
+    const testStartTime = testMode ? Date.now() : null;
+
     function updateCountdown() {
       try {
         // Target: Jan 1, 2026 00:00:00 Central Time (UTC-6)
         // Central Standard Time is UTC-6
         const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0); // Midnight Central = 6am UTC
         const nowUTC = Date.now();
-        const diff = targetUTC - nowUTC;
+
+        // In test mode, simulate 10 seconds from page load
+        let diff;
+        if (testMode && testStartTime) {
+          const elapsed = nowUTC - testStartTime;
+          diff = 10000 - elapsed; // 10 seconds countdown
+        } else {
+          diff = targetUTC - nowUTC;
+        }
 
         const el = document.getElementById('countdown');
         if (!el) return;

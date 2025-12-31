@@ -27,9 +27,9 @@ http://YOUR_HOST_IP/p/1  through  /p/12
 
 | Step | ID | Location | Prompt | Answer |
 |------|-----|----------|--------|--------|
-| 1 | 1 | From host after completing Lego | Caesar +3 decode "SODBOLVW" | PLAYLIST |
-| 2 | 2 | TBD | TBD | TBD |
-| 3 | 3 | TBD | TBD | TBD |
+| 1 | 1 | From host after Lego | Caesar +3 decode "SODBOLVW" | PLAYLIST |
+| 2 | 2 | Near the snacks | Unscramble: TPARTY | PARTY |
+| 3 | 3 | By the window | Riddle about midnight star | CLOCK |
 
 **Branch completion awards digits: 4, 1**
 
@@ -74,9 +74,9 @@ Update the `location_hint` in puzzles.js to match your actual hiding spots!
 
 | Step | ID | Location | Prompt | Answer |
 |------|-----|----------|--------|--------|
-| 1 | 7 | From host after completing jigsaw | Unscramble: RAELGND | GARLAND |
-| 2 | 8 | TBD | TBD | TBD |
-| 3 | 9 | TBD | TBD | TBD |
+| 1 | 7 | From host after jigsaw | Unscramble: RAELGND | GARLAND |
+| 2 | 8 | Coffee table | Word meaning jump AND 366-day year | LEAP |
+| 3 | 9 | Near the TV | Unscramble: HEWN YARE | NEW YEAR |
 
 **Branch completion awards digits: 0, 9**
 
@@ -93,9 +93,9 @@ Update the `location_hint` in puzzles.js to match your actual hiding spots!
 
 | Step | ID | Location | Prompt | Answer |
 |------|-----|----------|--------|--------|
-| 1 | 10 | Inside puzzle box | What do you call the back-of-book list used to find topics? | INDEX |
-| 2 | 11 | TBD | TBD | TBD |
-| 3 | 12 | TBD | TBD | TBD |
+| 1 | 10 | Inside puzzle box | Back-of-book list for topics | INDEX |
+| 2 | 11 | Behind the couch | Bubbly beverage we toast with | CHAMPAGNE |
+| 3 | 12 | Bookshelf | "Falls" on Jan 1st but never hurts | NEW YEARS DAY |
 
 **Branch completion awards digits: 5, 3**
 
