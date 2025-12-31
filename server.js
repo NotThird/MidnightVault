@@ -1062,9 +1062,6 @@ app.get('/tv', (req, res) => {
         currentTauntCategory = category;
         tauntNeedsUpdate = false;
         const el = document.getElementById('vault-taunt');
-        el.style.animation = 'none';
-        el.offsetHeight; // Trigger reflow
-        el.style.animation = 'taunt-fade 0.5s ease';
         el.textContent = getRandomTaunt(category);
       }
     }
@@ -1102,10 +1099,6 @@ app.get('/tv', (req, res) => {
               bigCountdownNum.classList.remove('is-number');
               bigCountdownNum.classList.add('is-text');
             }
-            // Pop animation
-            bigCountdownNum.style.animation = 'none';
-            bigCountdownNum.offsetHeight;
-            bigCountdownNum.style.animation = '';
           }
         } else if (data.showCelebration) {
           adminModeActive = true;
