@@ -705,13 +705,13 @@ app.get('/tv', (req, res) => {
   const taunt = tauntList[Math.floor(Math.random() * tauntList.length)];
 
   // Allow custom video via URL param: /tv?video=VIDEO_ID or /tv?video=full_youtube_url
-  let videoId = req.query.video || 'L_LUpnjgPso'; // Default: fireplace
+  let videoId = req.query.video || 'LQ1s48FQ5-g'; // Default: NYE countdown stream
   // Extract video ID if full URL was passed
   if (videoId.includes('youtube.com') || videoId.includes('youtu.be')) {
     const match = videoId.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
     if (match) videoId = match[1];
   }
-  const isLive = req.query.live === '1'; // Add ?live=1 for live streams
+  const isLive = req.query.live !== '0'; // Default to live mode, use ?live=0 to loop
   const videoParams = isLive
     ? 'autoplay=1&mute=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1'
     : `autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&vq=hd1080`;
