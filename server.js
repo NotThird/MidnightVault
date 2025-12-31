@@ -1092,7 +1092,7 @@ app.get('/tv', (req, res) => {
     // Init
     updateStatus();
     updateCountdown();
-    setInterval(updateStatus, 2000);
+    setInterval(updateStatus, 5000);  // Reduced from 2s to 5s to prevent flickering
     setInterval(updateCountdown, 1000);
 
     // NYE Big Countdown - poll server and update locally
@@ -1147,8 +1147,8 @@ app.get('/tv', (req, res) => {
       }
     }
 
-    // Check countdown frequently (every 100ms for smooth updates)
-    setInterval(checkNYECountdown, 100);
+    // Check countdown once per second (reduced from 100ms to prevent flickering)
+    setInterval(checkNYECountdown, 1000);
     checkNYECountdown();
   </script>`;
 
