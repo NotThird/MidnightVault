@@ -1417,7 +1417,7 @@ body.tv-mode {
     0 0 40px rgba(255, 215, 0, 0.8),
     0 0 80px rgba(255, 215, 0, 0.4);
   line-height: 1;
-  animation: clock-pulse 1s ease-in-out infinite;
+  /* Disabled infinite animation to prevent TV flicker */
 }
 
 .tv-countdown-overlay .nye-timezone {
@@ -1467,7 +1467,7 @@ body.tv-mode {
   font-size: 1.8rem;
   display: block;
   margin-bottom: 0.3vh;
-  animation: float 3s ease-in-out infinite;
+  /* animation: float 3s ease-in-out infinite; - disabled for TV */
 }
 
 @keyframes float {
@@ -1672,7 +1672,7 @@ body.tv-mode {
 
 .sidebar-taunt .taunt-avatar {
   font-size: 1.3rem;
-  animation: taunt-bounce 2s ease-in-out infinite;
+  /* animation: taunt-bounce 2s ease-in-out infinite; - disabled for TV */
   flex-shrink: 0;
 }
 
@@ -1710,7 +1710,7 @@ body.tv-mode {
 
 .mvp-row .mvp-crown {
   font-size: 1rem;
-  animation: crown-glow 2s ease-in-out infinite;
+  /* animation: crown-glow 2s ease-in-out infinite; - disabled for TV */
 }
 
 @keyframes crown-glow {
@@ -1764,7 +1764,7 @@ body.tv-mode {
   display: inline-block;
   font-size: 2rem;
   margin-bottom: 0;
-  animation: float 3s ease-in-out infinite;
+  /* animation: float 3s ease-in-out infinite; - disabled for TV */
 }
 
 .vault-icon-wrap.unlocked .vault-lock {
@@ -2059,7 +2059,7 @@ body.tv-mode {
 
 .taunt-avatar {
   font-size: 2.5vw;
-  animation: taunt-bounce 2s ease-in-out infinite;
+  /* animation: taunt-bounce 2s ease-in-out infinite; - disabled for TV */
   flex-shrink: 0;
 }
 
@@ -2098,7 +2098,7 @@ body.tv-mode {
 
 .mvp-crown {
   font-size: 1.5vw;
-  animation: crown-glow 2s ease-in-out infinite;
+  /* animation: crown-glow 2s ease-in-out infinite; - disabled for TV */
 }
 
 @keyframes crown-glow {

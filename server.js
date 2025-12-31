@@ -936,6 +936,7 @@ app.get('/tv', (req, res) => {
     // Rotate taunts every 15 seconds
     setInterval(() => { tauntNeedsUpdate = true; }, 15000);
 
+    let lastCountdownText = '';
     function updateCountdown() {
       try {
         // Target: Jan 1, 2026 00:00:00 Central Time (UTC-6)
@@ -947,9 +948,14 @@ app.get('/tv', (req, res) => {
         const el = document.getElementById('countdown');
         if (!el) return;
 
+        let newText;
         if (diff <= 0) {
-          el.textContent = 'HAPPY NEW YEAR!';
-          el.classList.add('midnight');
+          newText = 'HAPPY NEW YEAR!';
+          if (lastCountdownText !== newText) {
+            el.textContent = newText;
+            el.classList.add('midnight');
+            lastCountdownText = newText;
+          }
           return;
         }
 
@@ -957,10 +963,15 @@ app.get('/tv', (req, res) => {
         const mins = Math.floor((diff % 3600000) / 60000);
         const secs = Math.floor((diff % 60000) / 1000);
 
-        el.textContent =
-          hours.toString().padStart(2, '0') + ':' +
+        newText = hours.toString().padStart(2, '0') + ':' +
           mins.toString().padStart(2, '0') + ':' +
           secs.toString().padStart(2, '0');
+
+        // Only update if text changed
+        if (newText !== lastCountdownText) {
+          el.textContent = newText;
+          lastCountdownText = newText;
+        }
       } catch (e) {
         console.error('Countdown error:', e);
       }
