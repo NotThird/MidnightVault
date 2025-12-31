@@ -35,8 +35,8 @@ const PUZZULAR = [
     step: 1,
     title: 'Lego Chain 1',
     location_hint: 'Complete a Lego set, show the host!',
-    prompt: 'What Taylor Swift album came out in 2022? (One word, starts with M)',
-    answer: 'MIDNIGHTS',
+    prompt: 'You built a Lego set! Type START to begin the LEGO chain.',
+    answer: 'START',
     collectLetters: ['M', 'I', 'D'],
     successMessage: 'Collect these letters: M, I, D - Write them down!'
   },
@@ -74,7 +74,7 @@ const PUZZULAR = [
     prompt: 'You found it! What Taylor song says "Band-aids don\'t fix bullet holes"?',
     answer: 'BAD BLOOD',
     collectLetters: ['B', 'R'],
-    successMessage: 'Collect these letters: B, R - Write them down!'
+    successMessage: 'Collect letters: B, R - HINT: Time and space hold another secret...'
   },
   {
     id: 5,
@@ -85,7 +85,7 @@ const PUZZULAR = [
     prompt: 'Nice find! Taylor\'s song about a scarf left behind is "All Too ____"',
     answer: 'WELL',
     collectLetters: ['E', 'A'],
-    successMessage: 'Collect these letters: E, A - Add to your list!'
+    successMessage: 'Collect letters: E, A - HINT: Check where time is measured in the kitchen...'
   },
   {
     id: 6,
@@ -96,7 +96,7 @@ const PUZZULAR = [
     prompt: 'Unscramble your 5 letters (B,R,E,A,K) - Taylor says "we are never getting back together" after a ____',
     answer: 'BREAK',
     collectLetters: ['K'],
-    successMessage: 'BREAK! You found all the hidden QRs!'
+    successMessage: 'Collect letter: K - HINT: Something metallic sits low on a shelf...'
   },
 
   // JIGSAW branch (J1, J2, J3) - Word puzzles, collect letters → FEARLESS
@@ -107,8 +107,8 @@ const PUZZULAR = [
     step: 1,
     title: 'Word Puzzle 1',
     location_hint: 'Complete the jigsaw, show the host!',
-    prompt: 'Unscramble: SREA (Taylor\'s concert tour)',
-    answer: 'ERAS',
+    prompt: 'You completed the jigsaw! Type START to begin the JIGSAW chain.',
+    answer: 'START',
     collectLetters: ['F', 'E', 'A'],
     successMessage: 'Collect these letters: F, E, A - Write them down!'
   },
@@ -143,8 +143,8 @@ const PUZZULAR = [
     step: 1,
     title: 'Riddle 1',
     location_hint: 'Inside the puzzle box',
-    prompt: 'I come once a year, but I\'m never the same. Each time I arrive, you\'re a year older by name. What am I?',
-    answer: 'BIRTHDAY',
+    prompt: 'You opened the puzzle box! Type START to begin the PUZZLE BOX chain.',
+    answer: 'START',
     collectLetters: ['A', 'G'],
     successMessage: 'Collect these letters: A, G - Write them down!'
   },
