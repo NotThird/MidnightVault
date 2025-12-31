@@ -1733,7 +1733,7 @@ app.get('/admin/qr', (req, res) => {
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
       const baseUrl = '${baseUrl}';
 
@@ -1741,8 +1741,13 @@ app.get('/admin/qr', (req, res) => {
       document.querySelectorAll('.qr-code').forEach(el => {
         const id = el.id.replace('qr-', '');
         const url = baseUrl + '/p/' + id;
-        QRCode.toCanvas(document.createElement('canvas'), url, { width: 200, margin: 1 }, (err, canvas) => {
-          if (!err) el.appendChild(canvas);
+        new QRCode(el, {
+          text: url,
+          width: 180,
+          height: 180,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
         });
       });
 
