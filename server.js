@@ -1236,6 +1236,7 @@ app.get('/admin', (req, res) => {
     <header class="admin-header">
       <h1>Midnight Vault - Admin Dashboard</h1>
       <nav class="admin-nav">
+        <a href="/admin/qr?key=${ADMIN_KEY}" class="btn btn-small btn-gold">QR Codes</a>
         <a href="/" target="_blank" class="btn btn-small">Home</a>
         <a href="/tv" target="_blank" class="btn btn-small">TV</a>
         <a href="/hub" target="_blank" class="btn btn-small">Hub</a>
@@ -1679,6 +1680,117 @@ app.get('/admin', (req, res) => {
   </style>`;
   
   res.send(layout('Admin Dashboard', content));
+});
+
+// GET /admin/qr - QR Code Generator for all puzzles
+app.get('/admin/qr', (req, res) => {
+  if (req.query.key !== ADMIN_KEY) {
+    return res.status(403).send(layout('Access Denied', '<div class="container"><h1>Access Denied</h1></div>'));
+  }
+
+  // Get base URL from request or use custom domain
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  const baseUrl = req.query.base || `${protocol}://${host}`;
+
+  const allPuzzles = puzzles.getAllPuzzlesWithOverrides(db);
+
+  const puzzleCards = allPuzzles.map(p => {
+    const branchInfo = puzzles.BRANCHES[p.branch];
+    const puzzleUrl = `${baseUrl}/p/${p.id}`;
+
+    return `
+      <div class="qr-card" style="--branch-color: ${branchInfo.color}">
+        <div class="qr-header">
+          <span class="qr-branch" style="background: ${branchInfo.color}">${branchInfo.name}</span>
+          <span class="qr-step">Step ${p.step}</span>
+          <span class="qr-id">#${p.id}</span>
+        </div>
+        <div class="qr-code" id="qr-${p.id}"></div>
+        <div class="qr-location">${p.location_hint}</div>
+        <div class="qr-url">${puzzleUrl}</div>
+      </div>
+    `;
+  }).join('');
+
+  const content = `
+    <div class="qr-page">
+      <div class="qr-controls no-print">
+        <a href="/admin?key=${ADMIN_KEY}" class="btn btn-secondary">&larr; Back to Admin</a>
+        <button onclick="window.print()" class="btn btn-primary">Print QR Codes</button>
+        <div class="base-url-form">
+          <label>Base URL:</label>
+          <input type="text" id="base-url-input" value="${baseUrl}" style="width: 300px">
+          <button onclick="updateBaseUrl()" class="btn btn-secondary">Update URLs</button>
+        </div>
+      </div>
+
+      <h1 class="qr-title">Midnight Vault - Puzzle QR Codes</h1>
+      <p class="qr-instructions">Print and place each QR code at the specified location.</p>
+
+      <div class="qr-grid">
+        ${puzzleCards}
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+      const baseUrl = '${baseUrl}';
+
+      // Generate QR codes
+      document.querySelectorAll('.qr-code').forEach(el => {
+        const id = el.id.replace('qr-', '');
+        const url = baseUrl + '/p/' + id;
+        QRCode.toCanvas(document.createElement('canvas'), url, { width: 200, margin: 1 }, (err, canvas) => {
+          if (!err) el.appendChild(canvas);
+        });
+      });
+
+      function updateBaseUrl() {
+        const newBase = document.getElementById('base-url-input').value;
+        window.location.href = '/admin/qr?key=${ADMIN_KEY}&base=' + encodeURIComponent(newBase);
+      }
+    </script>
+
+    <style>
+      .qr-page { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+      .qr-controls { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+      .base-url-form { display: flex; gap: 0.5rem; align-items: center; }
+      .qr-title { text-align: center; color: var(--accent-gold); margin-bottom: 0.5rem; }
+      .qr-instructions { text-align: center; color: var(--text-secondary); margin-bottom: 2rem; }
+      .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+      .qr-card {
+        background: var(--bg-card);
+        border: 2px solid var(--branch-color);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        page-break-inside: avoid;
+      }
+      .qr-header { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+      .qr-branch { padding: 0.25rem 0.75rem; border-radius: 6px; color: white; font-weight: 600; font-size: 0.85rem; }
+      .qr-step { background: rgba(255,255,255,0.1); padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.85rem; }
+      .qr-id { color: var(--text-secondary); font-size: 0.85rem; padding: 0.25rem 0.5rem; }
+      .qr-code { margin: 1rem 0; display: flex; justify-content: center; }
+      .qr-code canvas { border-radius: 8px; }
+      .qr-location { font-size: 1.1rem; font-weight: 600; color: var(--accent-gold); margin: 0.5rem 0; }
+      .qr-url { font-size: 0.7rem; color: var(--text-secondary); word-break: break-all; }
+
+      @media print {
+        .no-print { display: none !important; }
+        body { background: white !important; color: black !important; }
+        .qr-page { padding: 0; }
+        .qr-card { border-color: #333 !important; background: white !important; }
+        .qr-branch { color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .qr-step { background: #eee !important; color: black !important; }
+        .qr-location { color: #333 !important; }
+        .qr-url { color: #666 !important; }
+        .qr-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+      }
+    </style>
+  `;
+
+  res.send(layout('QR Code Generator', content));
 });
 
 // POST /admin/reset
