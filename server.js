@@ -704,6 +704,18 @@ app.get('/tv', (req, res) => {
   const tauntList = taunts[tauntCategory];
   const taunt = tauntList[Math.floor(Math.random() * tauntList.length)];
 
+  // Allow custom video via URL param: /tv?video=VIDEO_ID or /tv?video=full_youtube_url
+  let videoId = req.query.video || 'L_LUpnjgPso'; // Default: fireplace
+  // Extract video ID if full URL was passed
+  if (videoId.includes('youtube.com') || videoId.includes('youtu.be')) {
+    const match = videoId.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+    if (match) videoId = match[1];
+  }
+  const isLive = req.query.live === '1'; // Add ?live=1 for live streams
+  const videoParams = isLive
+    ? 'autoplay=1&mute=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1'
+    : `autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&vq=hd1080`;
+
   const content = `
   <div class="tv-split-layout">
     <!-- LEFT: Main Video Area -->
@@ -711,7 +723,7 @@ app.get('/tv', (req, res) => {
       <div class="tv-video-wrapper">
         <iframe
           id="yt-player"
-          src="https://www.youtube.com/embed/L_LUpnjgPso?autoplay=1&mute=1&loop=1&playlist=L_LUpnjgPso&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&vq=hd1080"
+          src="https://www.youtube.com/embed/${videoId}?${videoParams}"
           frameborder="0"
           allow="autoplay; encrypted-media"
           allowfullscreen>
