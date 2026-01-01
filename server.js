@@ -2501,14 +2501,11 @@ app.get('/admin/mark-solved', (req, res) => {
   }
 
   // Create admin participant if needed
-  let admin = db.getParticipant('admin-restore');
-  if (!admin) {
-    db.createParticipant('admin-restore', 'Restored');
-  }
+  const admin = db.createParticipant('Admin-Restore');
 
   const results = [];
   for (const id of ids) {
-    db.recordSolve('admin-restore', id);
+    db.recordSolve(admin.id, id);
     const puzzle = puzzles.getPuzzle(id);
     if (puzzle && puzzle.step === 3) {
       db.setGlobalKey(`${puzzle.branch}_DONE`);
