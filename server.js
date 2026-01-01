@@ -613,7 +613,7 @@ app.get('/hub', ensureParticipant, (req, res) => {
     <section class="card digits-collected">
       <h3>Digits Collected</h3>
       <p class="digits-string">${digits || '(none yet)'}</p>
-      <p class="note">Digits are added in branch order: FOOD, MUSIC, DECOR, BOOKS</p>
+      <p class="note">Digits are added in branch order: LEGO, HIDDEN, JIGSAW, PUZZLE BOX</p>
     </section>
     
     <section class="card perm-reveal">
@@ -692,7 +692,7 @@ app.get('/meta', ensureParticipant, (req, res) => {
     <section class="card vault-math">
       <h3>Vault Code Computation</h3>
       <div class="math-step">
-        <span class="label">Digits (F+M+D+B):</span>
+        <span class="label">Digits (L+H+J+P):</span>
         <span class="value">${digits}</span>
       </div>
       <div class="math-step">
