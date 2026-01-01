@@ -493,31 +493,48 @@ app.post('/p/:id/submit', ensureParticipant, (req, res) => {
     } else {
       message = "Correct! Your solve is recorded.";
     }
-    
+
+    // Get next puzzle in chain (if not step 3)
+    const nextPuzzle = puzzle.step < 3 ? puzzles.getPuzzleByBranchStep(puzzle.branch, puzzle.step + 1) : null;
+    const nextPuzzleWithOverrides = nextPuzzle ? puzzles.getPuzzleWithOverrides(nextPuzzle.id, db) : null;
+
     const content = `
     <div class="container phone-first">
       <header>
         <h1>Correct!</h1>
       </header>
-      
+
       <section class="card success-card" style="--branch-color: ${branchInfo.color}">
         <div class="checkmark">&#10004;</div>
         <p class="success-message">${escapeHtml(message)}</p>
-        
+
+        ${puzzle.successMessage ? `
+          <div class="puzzle-reward">
+            <p class="reward-text">${escapeHtml(puzzle.successMessage)}</p>
+          </div>
+        ` : ''}
+
+        ${nextPuzzleWithOverrides && puzzle.branch !== 'H' ? `
+          <div class="next-clue">
+            <p class="next-label">🔍 NEXT QR LOCATION:</p>
+            <p class="next-hint"><strong>${escapeHtml(nextPuzzleWithOverrides.location_hint)}</strong></p>
+          </div>
+        ` : ''}
+
         ${branchCompleted ? `
           <div class="branch-complete-banner">
             <p><strong>${branchInfo.name} BRANCH COMPLETE!</strong></p>
             <p>Digits earned: <span class="digits">${branchInfo.digits.join('')}</span></p>
           </div>
         ` : ''}
-        
+
         ${hubUnlocked && doneCount === 2 ? `
           <div class="unlock-banner hub-unlock">
             <p>&#128275; <strong>HUB UNLOCKED!</strong></p>
             <a href="/hub" class="btn btn-primary">Go to Hub</a>
           </div>
         ` : ''}
-        
+
         ${metaUnlocked && doneCount === 4 ? `
           <div class="unlock-banner meta-unlock">
             <p>&#128275; <strong>VAULT UNLOCKED!</strong></p>

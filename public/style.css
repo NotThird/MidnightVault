@@ -452,6 +452,42 @@ label {
   margin-bottom: 1rem;
 }
 
+.puzzle-reward {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: rgba(155, 89, 182, 0.2);
+  border-radius: var(--border-radius);
+  border: 1px solid #9b59b6;
+}
+
+.reward-text {
+  font-size: 1.1rem;
+  color: #e8d5f0;
+  margin: 0;
+}
+
+.next-clue {
+  margin: 1.5rem 0;
+  padding: 1.2rem;
+  background: rgba(241, 196, 15, 0.15);
+  border-radius: var(--border-radius);
+  border: 2px solid var(--accent-gold);
+}
+
+.next-label {
+  font-size: 0.9rem;
+  color: var(--accent-gold);
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.next-hint {
+  font-size: 1.3rem;
+  color: #fff;
+  margin: 0;
+}
+
 .branch-complete-banner {
   margin-top: 1rem;
   padding: 1rem;
