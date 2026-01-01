@@ -17,7 +17,7 @@ const app = express();
 // Configuration
 const PORT = process.env.PORT || 3000;
 const VAULT_CODE = process.env.VAULT_CODE || '194082';
-const PRIZE_CLUE = process.env.PRIZE_CLUE || '🪅 PIÑATA TIME! 🪅 Gather everyone - it\\'s time to smash the piñata!';
+const PRIZE_CLUE = process.env.PRIZE_CLUE || '🪅 PIÑATA TIME! 🪅 Gather everyone - time to smash the piñata!';
 const ADMIN_KEY = process.env.ADMIN_KEY || 'supersecret2024';
 
 // NYE Countdown state (in-memory)
