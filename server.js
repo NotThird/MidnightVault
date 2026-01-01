@@ -806,9 +806,9 @@ app.get('/unlock', ensureParticipant, (req, res) => {
 
     <section class="card vault-entry">
       <h3>Option 1: Secret Phrase</h3>
-      <p class="hint">The 4 code words from each branch...</p>
+      <p class="hint">The 4 code words you collected from each branch...</p>
       <form action="/unlock/submit" method="POST" class="vault-form">
-        <input type="text" name="phrase" placeholder="WORD WORD WORD WORD" autocomplete="off">
+        <input type="text" name="phrase" placeholder="Enter the 4 words" autocomplete="off">
         <button type="submit">Unlock with Phrase</button>
       </form>
     </section>
