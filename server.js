@@ -906,7 +906,10 @@ app.post('/unlock/submit', ensureParticipant, (req, res) => {
 // GET /tv - Victory NYE Celebration Display
 app.get('/tv', (req, res) => {
   // Midnight Central Time = 6:00 AM UTC on Jan 1, 2026
-  const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0);
+  const baseTarget = Date.UTC(2026, 0, 1, 6, 0, 0);
+  // Allow offset adjustment via ?offset=X (in seconds, positive or negative)
+  const offsetSeconds = parseInt(req.query.offset || '0', 10) || 0;
+  const targetUTC = baseTarget + (offsetSeconds * 1000);
 
   // Video - NYE countdown
   let videoId = req.query.video || 'XVOHO2q10JU';
