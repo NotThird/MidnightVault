@@ -57,7 +57,7 @@ const PUZZULAR = [
     step: 3,
     title: 'Lego Chain 3',
     location_hint: 'LEGO STATION - QR #3 is on the Lego picture frame on the credenza',
-    prompt: 'Unscramble all 8 letters you collected (M,I,D,N,I,G,H,T) for a Taylor Swift album!',
+    prompt: 'Unscramble all 8 letters you collected (T,H,G,I,N,D,I,M) for a Taylor Swift album!',
     answer: 'MIDNIGHT',
     collectLetters: ['H', 'T'],
     successMessage: 'MIDNIGHT! You cracked the LEGO chain!'
@@ -93,7 +93,7 @@ const PUZZULAR = [
     step: 3,
     title: 'Hidden Hunt 3',
     location_hint: 'On the kitchen timer in the kitchen drawer',
-    prompt: 'Unscramble your 5 letters (B,R,E,A,K) - Taylor says "we are never getting back together" after a ____',
+    prompt: 'Unscramble your 5 letters (K,A,E,R,B) - Taylor says "we are never getting back together" after a ____',
     answer: 'BREAK',
     collectLetters: ['K'],
     successMessage: 'Collect letter: K - HINT: Something metallic sits low on a shelf...'
@@ -130,7 +130,7 @@ const PUZZULAR = [
     step: 3,
     title: 'Word Puzzle 3',
     location_hint: 'JIGSAW STATION - QR #3 is on the clock',
-    prompt: 'Unscramble all 8 letters (F,E,A,R,L,E,S,S) for a Taylor Swift album about being brave!',
+    prompt: 'Unscramble all 8 letters (S,S,E,L,R,A,E,F) for a Taylor Swift album about being brave!',
     answer: 'FEARLESS',
     collectLetters: ['S', 'S'],
     successMessage: 'FEARLESS! You conquered the JIGSAW word puzzles!'
@@ -167,7 +167,7 @@ const PUZZULAR = [
     step: 3,
     title: 'Riddle 3',
     location_hint: 'PUZZLE BOX STATION - QR #3 is on Austin\'s phone',
-    prompt: 'Unscramble your 5 letters (A,G,A,I,N). Taylor has a song "Begin ______"',
+    prompt: 'Unscramble your 5 letters (N,I,A,G,A). Taylor has a song "Begin ______"',
     answer: 'AGAIN',
     collectLetters: ['N'],
     successMessage: 'AGAIN! You solved the PUZZLE BOX riddles!'
