@@ -1807,6 +1807,37 @@ body.tv-mode {
   font-weight: 600;
 }
 
+/* Vault QR Code Section (TV) */
+.vault-qr-section {
+  background: rgba(255, 215, 0, 0.1);
+  border: 2px solid var(--accent-gold);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  animation: vault-pulse 2s ease-in-out infinite;
+}
+
+@keyframes vault-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); }
+}
+
+.vault-qr-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.vault-qr-img {
+  width: 120px;
+  height: 120px;
+  background: white;
+  border-radius: 8px;
+  padding: 4px;
+}
+
 /* =============================================================================
    LEGACY TV CINEMATIC (kept for reference)
    ============================================================================= */

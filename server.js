@@ -772,6 +772,119 @@ app.post('/meta/submit', ensureParticipant, (req, res) => {
   }
 });
 
+// GET /unlock - Mobile-friendly unlock page (linked from TV QR)
+app.get('/unlock', ensureParticipant, (req, res) => {
+  const doneCount = db.countDoneKeys();
+
+  if (doneCount < 4) {
+    const content = `
+    <div class="container phone-first">
+      <header>
+        <h1>Not Yet!</h1>
+      </header>
+      <section class="card locked-message">
+        <div class="lock-icon">&#128274;</div>
+        <p>All 4 branches must be complete first!</p>
+        <p>Branches done: ${doneCount} / 4</p>
+      </section>
+      <nav class="nav-links">
+        <a href="/" class="btn btn-primary">Back to Home</a>
+      </nav>
+    </div>`;
+    return res.send(layout('Vault Locked', content));
+  }
+
+  const content = `
+  <div class="container phone-first">
+    <header>
+      <h1>🔓 UNLOCK THE VAULT</h1>
+    </header>
+
+    <section class="card">
+      <p class="unlock-intro">Enter the secret phrase OR the 6-digit code!</p>
+    </section>
+
+    <section class="card vault-entry">
+      <h3>Option 1: Secret Phrase</h3>
+      <p class="hint">The 4 code words from each branch...</p>
+      <form action="/unlock/submit" method="POST" class="vault-form">
+        <input type="text" name="phrase" placeholder="WORD WORD WORD WORD" autocomplete="off">
+        <button type="submit">Unlock with Phrase</button>
+      </form>
+    </section>
+
+    <section class="card vault-entry">
+      <h3>Option 2: Vault Code</h3>
+      <p class="hint">Apply the permutation, take first 6 digits...</p>
+      <form action="/unlock/submit" method="POST" class="vault-form">
+        <input type="text" name="code" placeholder="6-digit code" pattern="[0-9]{6}" maxlength="6">
+        <button type="submit">Unlock with Code</button>
+      </form>
+    </section>
+  </div>`;
+
+  res.send(layout('Unlock the Vault', content));
+});
+
+// POST /unlock/submit - Handle both phrase and code
+app.post('/unlock/submit', ensureParticipant, (req, res) => {
+  const submittedPhrase = (req.body.phrase || '').trim().toUpperCase().replace(/[^A-Z]/g, ' ').replace(/\s+/g, ' ').trim();
+  const submittedCode = (req.body.code || '').trim();
+
+  const completedBranches = db.getCompletedBranches();
+  const { vaultCode } = puzzles.computeVaultCode(completedBranches);
+
+  // Check phrase: MIDNIGHT FEARLESS BREAK AGAIN (in any order? or exact?)
+  const correctPhrase = puzzles.FINAL_PHRASE.join(' '); // "MIDNIGHT FEARLESS BREAK AGAIN"
+  const phraseMatch = submittedPhrase === correctPhrase ||
+                      submittedPhrase === 'MIDNIGHTFEARLESSBREAKAGAIN' ||
+                      submittedPhrase.split(' ').sort().join(' ') === puzzles.FINAL_PHRASE.slice().sort().join(' ');
+
+  // Check code
+  const codeMatch = submittedCode === vaultCode || submittedCode === VAULT_CODE;
+
+  if (phraseMatch || codeMatch) {
+    const content = `
+    <div class="container phone-first">
+      <header>
+        <h1>🎉 VAULT OPENED! 🎉</h1>
+      </header>
+
+      <section class="card prize-reveal">
+        <div class="celebration">🪅 🎉 🪅</div>
+        <h2>YOU CRACKED THE VAULT!</h2>
+        <p class="prize-clue">${escapeHtml(PRIZE_CLUE)}</p>
+        <p class="instruction">Round up the crew - time to celebrate!</p>
+      </section>
+
+      <nav class="nav-links">
+        <a href="/" class="btn btn-primary">Back to Home</a>
+      </nav>
+    </div>`;
+
+    res.send(layout('Vault Opened!', content));
+  } else {
+    const content = `
+    <div class="container phone-first">
+      <header>
+        <a href="/unlock" class="back-link">&larr; Back</a>
+        <h1>Wrong!</h1>
+      </header>
+
+      <section class="card error-card">
+        <div class="xmark">&#10008;</div>
+        <p>That's not it! Check your code words or math.</p>
+      </section>
+
+      <nav class="nav-links">
+        <a href="/unlock" class="btn btn-primary">Try Again</a>
+      </nav>
+    </div>`;
+
+    res.send(layout('Wrong!', content));
+  }
+});
+
 // GET /tv - Cinematic TV Dashboard (PS5 compatible)
 app.get('/tv', (req, res) => {
   // Server-side countdown calculation for PS5 compatibility
@@ -952,6 +1065,12 @@ app.get('/tv', (req, res) => {
       <div class="sidebar-taunt">
         <span class="taunt-avatar">&#128520;</span>
         <p class="taunt-message" id="vault-taunt">${taunt}</p>
+      </div>
+
+      <!-- Vault QR Code (shows when all branches complete) -->
+      <div class="vault-qr-section" id="vault-qr" style="display: none;">
+        <div class="vault-qr-label">🔓 SCAN TO UNLOCK!</div>
+        <img id="vault-qr-img" class="vault-qr-img" alt="Vault QR Code" />
       </div>
 
       <!-- MVP & Feed -->
@@ -1401,6 +1520,14 @@ app.get('/tv', (req, res) => {
           vaultBox.classList.add('unlocked');
           vaultIcon.innerHTML = '&#128275;';
           vaultLock.innerHTML = '&#128275;';
+
+          // Show the vault QR code!
+          const vaultQR = document.getElementById('vault-qr');
+          const vaultQRImg = document.getElementById('vault-qr-img');
+          const vaultUrl = window.location.origin + '/unlock';
+          vaultQRImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(vaultUrl);
+          vaultQR.style.display = 'block';
+          celebrate('🔓 ALL BRANCHES COMPLETE! 🔓<br>SCAN THE QR TO UNLOCK!');
         }
 
         // Digits - only update on change
