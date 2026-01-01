@@ -930,11 +930,10 @@ app.get('/tv', (req, res) => {
       </iframe>
     </div>
 
-    <!-- Victory Banner -->
+    <!-- Victory Banner - Small corner badge -->
     <div class="victory-banner" id="victory-banner">
-      <div class="victory-icon">🔓</div>
-      <h1 class="victory-title">VAULT CRACKED!</h1>
-      <p class="victory-subtitle">You defeated the Midnight Vault!</p>
+      <span class="victory-icon">🔓</span>
+      <span class="victory-title">VAULT CRACKED!</span>
     </div>
 
     <!-- Countdown Clock -->
@@ -989,39 +988,26 @@ app.get('/tv', (req, res) => {
 
     .victory-banner {
       position: absolute;
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 20px;
+      left: 20px;
       z-index: 10;
-      text-align: center;
-      background: linear-gradient(135deg, rgba(46,204,113,0.9), rgba(39,174,96,0.9));
-      padding: 20px 60px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(46,204,113,0.5);
-      animation: pulse-glow 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 10px 40px rgba(46,204,113,0.5); }
-      50% { box-shadow: 0 10px 60px rgba(46,204,113,0.8); }
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(46,204,113,0.4);
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid rgba(46,204,113,0.6);
     }
 
     .victory-icon {
-      font-size: 4rem;
-      margin-bottom: 10px;
+      font-size: 1.5rem;
     }
 
     .victory-title {
-      font-size: 3rem;
+      font-size: 1.2rem;
       color: #fff;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      letter-spacing: 4px;
-    }
-
-    .victory-subtitle {
-      font-size: 1.3rem;
-      color: rgba(255,255,255,0.9);
-      margin-top: 5px;
+      letter-spacing: 2px;
     }
 
     .victory-countdown {
