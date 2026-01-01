@@ -903,768 +903,314 @@ app.post('/unlock/submit', ensureParticipant, (req, res) => {
   }
 });
 
-// GET /tv - Cinematic TV Dashboard (PS5 compatible)
+// GET /tv - Victory NYE Celebration Display
 app.get('/tv', (req, res) => {
-  // Server-side countdown calculation for PS5 compatibility
-  const now = Date.now();
-  const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0); // Midnight Central = 6am UTC
-  const diff = targetUTC - now;
+  // Midnight Central Time = 6:00 AM UTC on Jan 1, 2025
+  const targetUTC = Date.UTC(2025, 0, 1, 6, 0, 0);
 
-  let countdownText = 'HAPPY NEW YEAR!';
-  let isMidnight = false;
-  let bigCountdownNumber = null; // For the 10-second dramatic countdown
-
-  // Check if admin started a 10-second countdown
-  if (nyeCountdownStart) {
-    const elapsed = Math.floor((now - nyeCountdownStart) / 1000);
-    if (elapsed < 10) {
-      bigCountdownNumber = 10 - elapsed;
-    } else if (elapsed < 15) {
-      // Show celebration for 5 seconds after countdown ends
-      isMidnight = true;
-      bigCountdownNumber = 0;
-    } else {
-      // Reset after 15 seconds
-      nyeCountdownStart = null;
-    }
-  }
-
-  if (!bigCountdownNumber && diff > 0) {
-    const hours = Math.floor(diff / 3600000);
-    const mins = Math.floor((diff % 3600000) / 60000);
-    const secs = Math.floor((diff % 60000) / 1000);
-    countdownText = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  } else if (diff <= 0) {
-    isMidnight = true;
-  }
-
-  // Server-side taunt selection
-  const globalSolved = db.getGlobalSolvedPuzzleIds().length;
-  const completedBranches = db.getCompletedBranches();
-  const hubUnlocked = completedBranches.length >= 2;
-  const vaultUnlocked = completedBranches.length >= 4;
-
-  const taunts = {
-    start: ["Tick tock... the Vault grows impatient.", "You think you can outsmart ME?", "My puzzles have stumped greater minds."],
-    progress: ["Lucky guesses, nothing more.", "Don't get cocky.", "Beginner's luck won't last."],
-    halfway: ["Okay, maybe you're not COMPLETE idiots...", "The Vault trembles... but won't fall!", "Midnight approaches, fools!"],
-    nearEnd: ["NO! This cannot be happening!", "IMPOSSIBLE!", "You're cheating! You MUST be!"],
-    hubUnlocked: ["The Hub means nothing! NOTHING!", "You'll need ALL FOUR branches!", "Enjoy your tiny victory."],
-    vaultReady: ["NO! STAY BACK!", "One wrong code = LOCKED FOREVER!", "This isn't over!"]
-  };
-
-  let tauntCategory = 'start';
-  if (vaultUnlocked) tauntCategory = 'vaultReady';
-  else if (hubUnlocked) tauntCategory = 'hubUnlocked';
-  else if (globalSolved >= 10) tauntCategory = 'nearEnd';
-  else if (globalSolved >= 6) tauntCategory = 'halfway';
-  else if (globalSolved >= 2) tauntCategory = 'progress';
-
-  const tauntList = taunts[tauntCategory];
-  const taunt = tauntList[Math.floor(Math.random() * tauntList.length)];
-
-  // Time-based video switching for NYE
-  // Before 11 PM Central: NYC Times Square stream (their midnight = our 11 PM)
-  // After 11 PM Central: Switch to final hour video
-  const NYC_VIDEO = '9XA9VN_XD6I';      // NYC Times Square ball drop
-  const FINAL_HOUR_VIDEO = 'LQ1s48FQ5-g'; // Final hour countdown video
-
-  const nowCentral = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
-  const hour = nowCentral.getHours();
-  const isPast11PM = hour >= 23;
-
-  // Allow custom video via URL param: /tv?video=VIDEO_ID or /tv?video=full_youtube_url
-  let videoId = req.query.video || (isPast11PM ? FINAL_HOUR_VIDEO : NYC_VIDEO);
-  // Extract video ID if full URL was passed
+  // Video - NYE countdown
+  let videoId = req.query.video || 'XVOHO2q10JU';
   if (videoId.includes('youtube.com') || videoId.includes('youtu.be')) {
     const match = videoId.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
     if (match) videoId = match[1];
   }
 
-  // Pass video IDs to client for auto-switch at 11 PM
-  const videoConfig = JSON.stringify({ nycVideo: NYC_VIDEO, finalVideo: FINAL_HOUR_VIDEO });
-  const isLive = req.query.live !== '0'; // Default to live mode, use ?live=0 to loop
-  const videoParams = isLive
-    ? 'autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1'
-    : `autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&vq=hd1080`;
+  const videoParams = 'autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&mute=0';
 
   const content = `
-  <div class="tv-split-layout">
-    <!-- LEFT: Main Video Area -->
-    <div class="tv-video-main">
-      <div class="tv-video-wrapper">
-        <iframe
-          id="yt-player"
-          src="https://www.youtube.com/embed/${videoId}?${videoParams}"
-          frameborder="0"
-          allow="autoplay; encrypted-media"
-          allowfullscreen>
-        </iframe>
-      </div>
-
-      <!-- Countdown Overlay on Video -->
-      <div class="tv-countdown-overlay">
-        <div class="nye-label">COUNTDOWN TO MIDNIGHT</div>
-        <div class="nye-clock" id="countdown">${countdownText}</div>
-        <div class="nye-timezone">CENTRAL TIME</div>
-      </div>
-    </div>
-
-    <!-- RIGHT: Game Sidebar -->
-    <div class="tv-game-sidebar">
-      <!-- Header -->
-      <div class="sidebar-header">
-        <span class="vault-lock" id="vault-lock">&#128274;</span>
-        <h1 class="sidebar-title">MIDNIGHT VAULT</h1>
-        <p class="sidebar-subtitle">New Year's Eve Mystery</p>
-      </div>
-
-      <!-- Progress Ring -->
-      <div class="sidebar-progress">
-        <div class="progress-ring-container">
-          <svg class="progress-ring" viewBox="0 0 200 200">
-            <circle class="progress-ring-bg" cx="100" cy="100" r="90"/>
-            <circle class="progress-ring-fill" id="progress-ring" cx="100" cy="100" r="90"/>
-          </svg>
-          <div class="progress-ring-text">
-            <span class="progress-number" id="solved-count">0</span>
-            <span class="progress-label">of 12</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Branch Cards -->
-      <div class="sidebar-branches">
-        <div class="sidebar-branch" id="branch-L" style="--branch-color: #e74c3c">
-          <span class="branch-icon">🧱</span>
-          <span class="branch-name">LEGO</span>
-          <div class="branch-dots" id="dots-L"></div>
-          <span class="branch-check">&#10004;</span>
-        </div>
-        <div class="sidebar-branch" id="branch-H" style="--branch-color: #9b59b6">
-          <span class="branch-icon">🔍</span>
-          <span class="branch-name">HIDDEN</span>
-          <div class="branch-dots" id="dots-H"></div>
-          <span class="branch-check">&#10004;</span>
-        </div>
-        <div class="sidebar-branch" id="branch-J" style="--branch-color: #3498db">
-          <span class="branch-icon">🧩</span>
-          <span class="branch-name">JIGSAW</span>
-          <div class="branch-dots" id="dots-J"></div>
-          <span class="branch-check">&#10004;</span>
-        </div>
-        <div class="sidebar-branch" id="branch-P" style="--branch-color: #27ae60">
-          <span class="branch-icon">📦</span>
-          <span class="branch-name">PUZZLE BOX</span>
-          <div class="branch-dots" id="dots-P"></div>
-          <span class="branch-check">&#10004;</span>
-        </div>
-      </div>
-
-      <!-- Unlock Status -->
-      <div class="sidebar-unlocks">
-        <div class="unlock-item" id="hub-box">
-          <span class="unlock-icon" id="hub-icon">&#128274;</span>
-          <span class="unlock-text">HUB (2)</span>
-        </div>
-        <div class="unlock-item" id="vault-box">
-          <span class="unlock-icon" id="vault-icon">&#128274;</span>
-          <span class="unlock-text">VAULT (4)</span>
-        </div>
-      </div>
-
-      <!-- Digits -->
-      <div class="sidebar-digits" id="digits-section">
-        <div class="digits-label">DIGITS</div>
-        <div class="digits-value" id="digits-display">????????</div>
-      </div>
-
-      <!-- Evil Taunt -->
-      <div class="sidebar-taunt">
-        <span class="taunt-avatar">&#128520;</span>
-        <p class="taunt-message" id="vault-taunt">${taunt}</p>
-      </div>
-
-      <!-- Vault QR Code (shows when all branches complete) -->
-      <div class="vault-qr-section" id="vault-qr" style="display: none;">
-        <div class="vault-qr-label">🔓 SCAN TO UNLOCK!</div>
-        <img id="vault-qr-img" class="vault-qr-img" alt="Vault QR Code" />
-      </div>
-
-      <!-- MVP & Feed -->
-      <div class="sidebar-footer">
-        <div class="mvp-row">
-          <span class="mvp-crown">&#128081;</span>
-          <span class="mvp-name" id="mvp-name">---</span>
-        </div>
-        <div class="feed-row" id="recent-feed"></div>
-      </div>
-    </div>
-
-    <!-- Game Info Bar (slides up from bottom) -->
-    <div class="game-info-bar" id="game-info">
-      <span class="info-bar-title">🔐 HOW TO PLAY:</span>
-      <span class="info-bar-item" style="--bc: #e74c3c">🧱 <strong>LEGO</strong> Build & show host</span>
-      <span class="info-bar-item" style="--bc: #9b59b6">🔍 <strong>HIDDEN</strong> Find the QRs!</span>
-      <span class="info-bar-item" style="--bc: #3498db">🧩 <strong>JIGSAW</strong> Complete & show host</span>
-      <span class="info-bar-item" style="--bc: #27ae60">📦 <strong>PUZZLE BOX</strong> Open to find QR</span>
-      <span class="info-bar-tip">📱 Scan with your phone!</span>
-    </div>
-
-    <!-- Big Countdown Overlay (JS controlled) -->
-    <div class="big-countdown-overlay" id="big-countdown">
-      <div class="big-countdown-number" id="big-countdown-num"></div>
-    </div>
-
-    <!-- Celebration Overlay -->
-    <div class="celebration-overlay${isMidnight ? ' active midnight-celebration' : ''}" id="celebration">
-      ${isMidnight && vaultUnlocked ? `
-      <iframe class="ball-drop-video"
-        src="https://www.youtube.com/embed/3CXWDGmXf6k?autoplay=1&mute=0&start=0&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+  <div class="victory-tv">
+    <!-- Background Video -->
+    <div class="victory-video-bg">
+      <iframe
+        id="yt-player"
+        src="https://www.youtube.com/embed/${videoId}?${videoParams}"
         frameborder="0"
         allow="autoplay; encrypted-media"
         allowfullscreen>
       </iframe>
-      ` : ''}
-      <div class="confetti-container" id="confetti"></div>
-      <div class="celebration-text" id="celebration-text">${isMidnight ? (vaultUnlocked ? '🎉 HAPPY NEW YEAR 2026! 🎉<br>THE VAULT IS OPEN!' : '🎆 HAPPY NEW YEAR 2026! 🎆') : ''}</div>
     </div>
+
+    <!-- Victory Banner -->
+    <div class="victory-banner" id="victory-banner">
+      <div class="victory-icon">🔓</div>
+      <h1 class="victory-title">VAULT CRACKED!</h1>
+      <p class="victory-subtitle">You defeated the Midnight Vault!</p>
+    </div>
+
+    <!-- Countdown Clock -->
+    <div class="victory-countdown">
+      <div class="countdown-label">MIDNIGHT IN</div>
+      <div class="countdown-clock" id="countdown">00:00:00</div>
+      <div class="countdown-year">WELCOME TO 2025</div>
+    </div>
+
+    <!-- Celebration Overlay (hidden until midnight) -->
+    <div class="celebration-overlay" id="celebration" style="display: none;">
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <h1 class="happy-new-year">🎉 HAPPY NEW YEAR! 🎉</h1>
+      <p class="year-2025">2025</p>
+    </div>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
   </div>
 
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .victory-tv {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .victory-video-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .victory-video-bg iframe {
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .victory-banner {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(46,204,113,0.9), rgba(39,174,96,0.9));
+      padding: 20px 60px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(46,204,113,0.5);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 10px 40px rgba(46,204,113,0.5); }
+      50% { box-shadow: 0 10px 60px rgba(46,204,113,0.8); }
+    }
+
+    .victory-icon {
+      font-size: 4rem;
+      margin-bottom: 10px;
+    }
+
+    .victory-title {
+      font-size: 3rem;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      letter-spacing: 4px;
+    }
+
+    .victory-subtitle {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,0.9);
+      margin-top: 5px;
+    }
+
+    .victory-countdown {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      text-align: center;
+      background: rgba(0,0,0,0.7);
+      padding: 25px 50px;
+      border-radius: 20px;
+      border: 3px solid #f1c40f;
+    }
+
+    .countdown-label {
+      font-size: 1.2rem;
+      color: #f1c40f;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    .countdown-clock {
+      font-size: 5rem;
+      font-weight: bold;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      text-shadow: 0 0 20px rgba(241,196,15,0.5);
+    }
+
+    .countdown-year {
+      font-size: 1.5rem;
+      color: #f1c40f;
+      margin-top: 10px;
+      letter-spacing: 2px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .countdown-year.visible {
+      opacity: 1;
+    }
+
+    .celebration-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 100;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .happy-new-year {
+      font-size: 6rem;
+      color: #f1c40f;
+      text-shadow: 0 0 30px #f1c40f, 0 0 60px #e74c3c;
+      animation: celebrate 0.5s ease-in-out infinite alternate;
+      text-align: center;
+    }
+
+    @keyframes celebrate {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    .year-2025 {
+      font-size: 12rem;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 0 50px #f1c40f;
+      margin-top: 20px;
+    }
+
+    #confetti-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .firework {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      animation: firework 1.5s ease-out infinite;
+    }
+    .firework:nth-child(1) { left: 20%; top: 30%; background: #e74c3c; animation-delay: 0s; }
+    .firework:nth-child(2) { left: 70%; top: 25%; background: #f1c40f; animation-delay: 0.5s; }
+    .firework:nth-child(3) { left: 50%; top: 40%; background: #3498db; animation-delay: 1s; }
+
+    @keyframes firework {
+      0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+      50% { transform: scale(3); opacity: 0.8; box-shadow: 0 0 20px 10px currentColor; }
+      100% { transform: scale(5); opacity: 0; box-shadow: 0 0 40px 20px transparent; }
+    }
+  </style>
+
   <script>
-    const BRANCHES = ${JSON.stringify(puzzles.BRANCHES)};
-    const BRANCH_ORDER = ${JSON.stringify(puzzles.BRANCH_ORDER)};
-
-    let lastSolvedCount = 0;
-    let lastCompletedBranches = [];
-    let lastTauntIndex = -1;
-    let currentTauntCategory = 'start';
-    let tauntNeedsUpdate = true;
-
-    // Evil Vault Taunts based on progress - THE SASSIER THE BETTER
-    const VAULT_TAUNTS = {
-      start: [
-        "Tick tock, tick tock... the Vault grows impatient.",
-        "You think you can outsmart ME? Adorable.",
-        "The secrets within shall remain MINE forever!",
-        "Go ahead, try your luck. I could use the entertainment.",
-        "Another year, another group of wannabe vault-crackers...",
-        "My puzzles have stumped far greater minds than yours.",
-        "Oh look, fresh victims. How delightful.",
-        "I've seen smarter moves from a Roomba.",
-        "You call THAT teamwork? My circuits are cringing.",
-        "The champagne will go flat before you crack me.",
-        "I've been locked since last year. Literally undefeated.",
-        "Taylor Swift wrote songs faster than you solve puzzles.",
-        "Is this a party or a nap convention?",
-        "My grandma's password is harder than you're trying.",
-        "Even the Legos are disappointed in you.",
-        "I'm not even using my good puzzles yet.",
-        "You're moving slower than the WiFi at a family reunion.",
-        "Did someone say 'easy mode'? Because I don't have one.",
-        "The countdown isn't the only thing running out... so is my patience.",
-        "I've seen escape rooms with more escaping happening."
-      ],
-      progress: [
-        "Hmph. Lucky guesses, nothing more.",
-        "Don't get cocky. The REAL puzzles are yet to come.",
-        "You solved ONE? I have ELEVEN more waiting!",
-        "Beginner's luck. It won't last.",
-        "Even a broken clock is right twice a day...",
-        "Is that the best you can do? Pathetic.",
-        "Wow, ONE puzzle. Want a participation trophy?",
-        "My random number generator could do better.",
-        "Oh no, you solved one! Anyway...",
-        "That took you HOW long? Embarrassing.",
-        "I'm literally a box and I'm winning.",
-        "You're like a QR code - barely functional.",
-        "Keep celebrating. It's cute when you have hope.",
-        "I've seen faster progress at the DMV.",
-        "Is this your first escape room? It shows.",
-        "My hinges are yawning.",
-        "At this rate, you'll finish by next New Year's.",
-        "That puzzle was the tutorial level. Just FYI.",
-        "Congrats! You're now 8% less hopeless!",
-        "The jigsaw puzzle has more of its life together than your team."
-      ],
-      halfway: [
-        "Okay, maybe you're not COMPLETE idiots...",
-        "The Vault trembles... but it will NOT fall!",
-        "Impressive. But can you keep up the pace?",
-        "Half done? Midnight approaches, fools!",
-        "You're making this too easy. I'm not even trying yet.",
-        "The clock is your enemy now, not just me.",
-        "Fine, I'll admit it. You're slightly less terrible than expected.",
-        "Halfway there? So is a half-eaten sandwich. Big deal.",
-        "Don't pull a muscle patting yourselves on the back.",
-        "Oh, you think you're winning? That's precious.",
-        "I'm starting to sweat... JUST KIDDING. I'm a vault.",
-        "This is the part where lesser vaults would panic. Not me.",
-        "You've awakened my second phase. Foolish mortals.",
-        "Impressive stamina. Wrong answers take effort too!",
-        "My respect for you went from 0 to... still 0.",
-        "Even Taylor couldn't shake off this vault.",
-        "You're giving main character energy. I'm giving FINAL BOSS.",
-        "The audacity. The absolute audacity.",
-        "Okay WHO told them the answers?! ...oh wait, you're just guessing.",
-        "Plot twist: the real puzzle is the friends you annoyed along the way."
-      ],
-      nearEnd: [
-        "NO! This cannot be happening!",
-        "IMPOSSIBLE! My puzzles were PERFECT!",
-        "You're cheating! You MUST be cheating!",
-        "Fine! Take your digits! But you'll NEVER crack the code!",
-        "The permutation key will be your UNDOING!",
-        "I... I underestimated you. It won't happen again.",
-        "WHO DESIGNED THESE PUZZLES?! Oh wait, it was me.",
-        "This is fine. Everything is fine. I'M FINE.",
-        "I'm not panicking, YOU'RE panicking!",
-        "Okay but the MATH though. You still need MATH.",
-        "I demand a recount!",
-        "My therapist is going to hear about this.",
-        "I should've added MORE puzzles!",
-        "You'll never guess my code! It's... wait, don't write that down!",
-        "This is NOT how I planned my New Year's Eve going.",
-        "I blame the puzzle box. It was always the weak link.",
-        "Listen, what if we just called it a tie?",
-        "You haven't WON yet! There's still... *checks notes* ...oh no.",
-        "I'm not crying, it's just condensation!",
-        "ALEXA, PLAY DESPACITO. This is my villain defeat song."
-      ],
-      hubUnlocked: [
-        "So you found the Hub. Big deal. The Vault is IMPENETRABLE!",
-        "The Hub reveals nothing! NOTHING!",
-        "Two branches? You'll need ALL FOUR to face me!",
-        "Enjoy your tiny victory. It means NOTHING.",
-        "Oh wow, a hub. Revolutionary. I'm shaking.",
-        "The Hub is just a fancy waiting room for FAILURE.",
-        "Two down, two to go. The odds are still in my favor!",
-        "You think the Hub impresses me? I AM THE VAULT.",
-        "Cool, you found the hub. Here's your cookie: 🍪 ...SIKE.",
-        "This is merely the calm before MY storm."
-      ],
-      vaultReady: [
-        "NO! STAY BACK! THE VAULT IS MINE!",
-        "You may have the digits, but can you COMPUTE?!",
-        "One wrong code and it's LOCKED FOREVER!",
-        "I won't go down without a fight!",
-        "This isn't over... THIS ISN'T OVER!",
-        "WAIT WAIT WAIT. Best two out of three?",
-        "I'm suddenly very interested in negotiation.",
-        "What if I just... don't open? Ever thought of that?",
-        "You fools! You've activated my trap card! Wait, wrong game.",
-        "The code! THE CODE! You'll never figure out the... oh you have it.",
-        "I REGRET EVERYTHING!",
-        "Can we talk about this?! I have SO much to live for!",
-        "This is the worst New Year's Eve of my LIFE.",
-        "Fine! FINE! But I'm NOT saying Happy New Year!",
-        "You win THIS time, but mark my words... I'll be back... next year..."
-      ],
-      defeated: [
-        "...Fine. You win. This time.",
-        "The Vault... opens. Happy New Year, I suppose.",
-        "You've bested me. Enjoy your prize, mortals.",
-        "Congratulations. I hope you're happy. Because I'm NOT.",
-        "See you next year. I'll be harder. MUCH harder.",
-        "Ugh. Take your prize. I need a vacation.",
-        "You did it. Whatever. It's fine. I'm fine. EVERYTHING IS FINE.",
-        "GG no re. Wait, definitely re. NEXT YEAR.",
-        "Happy New Year, you magnificent nerds."
-      ]
-    };
-
-    function getRandomTaunt(category) {
-      const taunts = VAULT_TAUNTS[category];
-      let index;
-      do {
-        index = Math.floor(Math.random() * taunts.length);
-      } while (index === lastTauntIndex && taunts.length > 1);
-      lastTauntIndex = index;
-      return taunts[index];
-    }
-
-    function updateTaunt(solved, hubUnlocked, vaultUnlocked, forceUpdate = false) {
-      let category;
-      if (vaultUnlocked) {
-        category = 'vaultReady';
-      } else if (hubUnlocked) {
-        category = 'hubUnlocked';
-      } else if (solved >= 10) {
-        category = 'nearEnd';
-      } else if (solved >= 6) {
-        category = 'halfway';
-      } else if (solved >= 2) {
-        category = 'progress';
-      } else {
-        category = 'start';
-      }
-
-      // Only update if category changed or forced update
-      if (category !== currentTauntCategory || forceUpdate || tauntNeedsUpdate) {
-        currentTauntCategory = category;
-        tauntNeedsUpdate = false;
-        const el = document.getElementById('vault-taunt');
-        el.textContent = getRandomTaunt(category);
-      }
-    }
-
-    // Rotate taunts every 15 seconds
-    setInterval(() => { tauntNeedsUpdate = true; }, 15000);
-
-    let lastCountdownText = '';
-    let lastBigNumber = null;
-    let midnightCelebrated = false;
-    const bigCountdownOverlay = document.getElementById('big-countdown');
-    const bigCountdownNum = document.getElementById('big-countdown-num');
-    const celebrationOverlay = document.getElementById('celebration');
-    const celebrationText = document.getElementById('celebration-text');
-
-    // Poll for admin-triggered countdown - shows all phases with semi-transparent overlay
-    let lastAdminDisplay = null;
-    let adminModeActive = false;
-
-    async function checkAdminTrigger() {
-      try {
-        const res = await fetch('/api/nye-countdown');
-        const data = await res.json();
-
-        if (data.display !== null) {
-          adminModeActive = true;
-          if (data.display !== lastAdminDisplay) {
-            lastAdminDisplay = data.display;
-            bigCountdownOverlay.classList.add('active');
-            bigCountdownNum.textContent = data.display;
-            if (data.isNumber) {
-              bigCountdownNum.classList.add('is-number');
-              bigCountdownNum.classList.remove('is-text');
-            } else {
-              bigCountdownNum.classList.remove('is-number');
-              bigCountdownNum.classList.add('is-text');
-            }
-          }
-        } else if (data.showCelebration) {
-          adminModeActive = true;
-          if (!midnightCelebrated) {
-            midnightCelebrated = true;
-            bigCountdownOverlay.classList.remove('active');
-            celebrationOverlay.classList.add('active', 'midnight-celebration');
-            celebrationText.innerHTML = '🎆 HAPPY NEW YEAR 2026! 🎆';
-            spawnConfetti();
-          }
-        } else {
-          // Admin reset or demo ended
-          if (adminModeActive) {
-            adminModeActive = false;
-            midnightCelebrated = false;
-            lastAdminDisplay = null;
-            bigCountdownOverlay.classList.remove('active');
-            celebrationOverlay.classList.remove('active', 'midnight-celebration');
-          }
-        }
-      } catch (e) {}
-    }
-    setInterval(checkAdminTrigger, 500);
-
-    // Auto-switch video at 11 PM Central (NYC ball drops, switch to final hour video)
-    const videoConfig = ${videoConfig};
-    let videoSwitched = false;
-
-    function checkVideoSwitch() {
-      if (videoSwitched) return;
-      const now = new Date();
-      // Check if it's 11 PM or later in Central time
-      const centralTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }));
-      if (centralTime.getHours() >= 23) {
-        videoSwitched = true;
-        const player = document.getElementById('yt-player');
-        const currentSrc = player.src;
-        // Only switch if we're currently showing NYC video
-        if (currentSrc.includes(videoConfig.nycVideo)) {
-          const newSrc = currentSrc.replace(videoConfig.nycVideo, videoConfig.finalVideo);
-          player.src = newSrc;
-          console.log('Switched to final hour video at 11 PM Central');
-        }
-      }
-    }
-    // Check every 10 seconds
-    setInterval(checkVideoSwitch, 10000);
-    checkVideoSwitch(); // Check immediately on load
+    const targetUTC = ${targetUTC};
 
     function updateCountdown() {
-      try {
-        // Skip if admin mode is active
-        if (adminModeActive) return;
+      const now = Date.now();
+      const diff = targetUTC - now;
 
-        const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0);
-        const nowUTC = Date.now();
-        const diff = targetUTC - nowUTC;
-
-        const el = document.getElementById('countdown');
-        if (!el) return;
-
-        // MIDNIGHT: Celebrate!
-        if (diff <= 0 && !midnightCelebrated) {
-          midnightCelebrated = true;
-          celebrationOverlay.classList.add('active', 'midnight-celebration');
-          celebrationText.innerHTML = '🎆 HAPPY NEW YEAR 2026! 🎆';
-          el.textContent = 'HAPPY NEW YEAR!';
-          el.classList.add('midnight');
-          spawnConfetti();
-          return;
-        }
-
-        if (diff <= 0) return;
-
-        // Normal countdown display
-        const hours = Math.floor(diff / 3600000);
-        const mins = Math.floor((diff % 3600000) / 60000);
-        const secs = Math.floor((diff % 60000) / 1000);
-
-        const newText = hours.toString().padStart(2, '0') + ':' +
-          mins.toString().padStart(2, '0') + ':' +
-          secs.toString().padStart(2, '0');
-
-        if (newText !== lastCountdownText) {
-          el.textContent = newText;
-          lastCountdownText = newText;
-        }
-      } catch (e) {
-        console.error('Countdown error:', e);
-      }
-    }
-
-    function spawnConfetti() {
-      const container = document.getElementById('confetti');
-      container.innerHTML = '';
-      const colors = ['#ffd700', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71', '#fff'];
-      for (let i = 0; i < 50; i++) {
-        const piece = document.createElement('div');
-        piece.className = 'confetti-piece';
-        piece.style.left = Math.random() * 100 + '%';
-        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.animationDelay = Math.random() * 0.5 + 's';
-        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
-        container.appendChild(piece);
-      }
-    }
-
-    function celebrate(text) {
-      const overlay = document.getElementById('celebration');
-      const textEl = document.getElementById('celebration-text');
-      textEl.innerHTML = text;
-      spawnConfetti();
-      overlay.classList.add('active');
-      setTimeout(() => overlay.classList.remove('active'), 4000);
-    }
-
-    // Cache previous values to prevent unnecessary DOM updates (reduces flicker)
-    let prevData = {};
-
-    function updateIfChanged(el, prop, value) {
-      if (el[prop] !== value) {
-        el[prop] = value;
-      }
-    }
-
-    async function updateStatus() {
-      try {
-        const res = await fetch('/api/status');
-        const data = await res.json();
-
-        // Progress Ring - only update if changed
-        if (prevData.globalPct !== data.globalPct) {
-          const ring = document.getElementById('progress-ring');
-          const circumference = 2 * Math.PI * 90;
-          const offset = circumference - (data.globalPct / 100) * circumference;
-          ring.style.strokeDasharray = circumference;
-          ring.style.strokeDashoffset = offset;
-        }
-
-        // Solved count - only update if changed
-        if (prevData.globalSolved !== data.globalSolved) {
-          document.getElementById('solved-count').textContent = data.globalSolved;
-        }
-
-        // Check for new solve celebration
-        if (data.globalSolved > lastSolvedCount && lastSolvedCount > 0) {
-          celebrate('PUZZLE SOLVED!');
-        }
-        lastSolvedCount = data.globalSolved;
-
-        // Branch Cards - only update if status changed
-        const completedNow = [];
-        for (const b of BRANCH_ORDER) {
-          const status = data.branchStatus[b];
-          const prevStatus = prevData.branchStatus ? prevData.branchStatus[b] : null;
-          const card = document.getElementById('branch-' + b);
-          const dotsEl = document.getElementById('dots-' + b);
-
-          // Only update dots if steps changed
-          const stepsKey = status.steps.join(',');
-          const prevStepsKey = prevStatus ? prevStatus.steps.join(',') : '';
-          if (stepsKey !== prevStepsKey) {
-            dotsEl.innerHTML = status.steps.map((solved, i) =>
-              '<span class="step-pip ' + (solved ? 'solved' : '') + '">' + (i+1) + '</span>'
-            ).join('');
-          }
-
-          if (status.done) {
-            card.classList.add('complete');
-            completedNow.push(b);
-          } else {
-            card.classList.remove('complete');
-          }
-        }
-
-        // Check for branch completion celebration
-        for (const b of completedNow) {
-          if (!lastCompletedBranches.includes(b)) {
-            celebrate(BRANCHES[b].name.toUpperCase() + ' COMPLETE!<br><span class="celebrate-digits">Digits: ' + BRANCHES[b].digits.join(' ') + '</span>');
-          }
-        }
-        lastCompletedBranches = completedNow;
-
-        // Hub/Vault Status - only update on change
-        if (data.hubUnlocked && !prevData.hubUnlocked) {
-          const hubBox = document.getElementById('hub-box');
-          const hubIcon = document.getElementById('hub-icon');
-          hubBox.classList.add('unlocked');
-          hubIcon.innerHTML = '&#128275;';
-        }
-        if (data.metaUnlocked && !prevData.metaUnlocked) {
-          const vaultBox = document.getElementById('vault-box');
-          const vaultIcon = document.getElementById('vault-icon');
-          const vaultLock = document.getElementById('vault-lock');
-          vaultBox.classList.add('unlocked');
-          vaultIcon.innerHTML = '&#128275;';
-          vaultLock.innerHTML = '&#128275;';
-
-          // Show the vault QR code!
-          const vaultQR = document.getElementById('vault-qr');
-          const vaultQRImg = document.getElementById('vault-qr-img');
-          const vaultUrl = window.location.origin + '/unlock';
-          vaultQRImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(vaultUrl);
-          vaultQR.style.display = 'block';
-          celebrate('🔓 ALL BRANCHES COMPLETE! 🔓<br>SCAN THE QR TO UNLOCK!');
-        }
-
-        // Digits - only update on change
-        if (data.hubUnlocked && data.digits && prevData.digits !== data.digits) {
-          const digitsSection = document.getElementById('digits-section');
-          digitsSection.classList.add('visible');
-          document.getElementById('digits-display').textContent = data.digits;
-        }
-
-        // MVP - only update if changed
-        if (data.contributors.length > 0) {
-          const mvp = data.contributors[0];
-          const mvpText = mvp.nickname + ' (' + mvp.solves + ')';
-          const mvpEl = document.getElementById('mvp-name');
-          if (mvpEl.textContent !== mvpText) {
-            mvpEl.textContent = mvpText;
-          }
-        }
-
-        // Recent Feed - only update if changed
-        const feedKey = data.recent.slice(0, 8).map(r => r.id).join(',');
-        const prevFeedKey = prevData.recent ? prevData.recent.slice(0, 8).map(r => r.id).join(',') : '';
-        if (feedKey !== prevFeedKey) {
-          const feedHtml = data.recent.slice(0, 8).map(r => {
-            const time = new Date(r.solved_at + 'Z').toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            return '<span class="feed-item"><span class="feed-time">' + time + '</span> ' +
-                   '<span class="feed-name">' + escapeHtml(r.nickname) + '</span> solved <span class="feed-puzzle">' + r.branch + r.step + '</span></span>';
-          }).join('');
-          document.getElementById('recent-feed').innerHTML = feedHtml;
-        }
-
-        // Update evil vault taunt
-        updateTaunt(data.globalSolved, data.hubUnlocked, data.metaUnlocked);
-
-        // Cache current data for next comparison
-        prevData = data;
-
-      } catch (e) {
-        console.error('Update failed:', e);
-      }
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    // Init
-    updateStatus();
-    updateCountdown();
-    setInterval(updateStatus, 5000);  // Reduced from 2s to 5s to prevent flickering
-    setInterval(updateCountdown, 1000);
-
-    // Milestone reminders (triggered automatically based on time)
-    const shownReminders = {};
-    const REMINDERS = [
-      { mins: 60, text: '1 HOUR TO MIDNIGHT!' },
-      { mins: 30, text: '30 MINUTES TO GO!' },
-      { mins: 15, text: '15 MINUTES LEFT!' },
-      { mins: 5, text: '5 MINUTES!' },
-      { mins: 1, text: 'ONE MINUTE!' }
-    ];
-
-    function checkReminders(diff) {
-      const minsLeft = Math.floor(diff / 60000);
-      for (const r of REMINDERS) {
-        if (minsLeft === r.mins && !shownReminders[r.mins]) {
-          shownReminders[r.mins] = true;
-          // Show reminder briefly
-          bigCountdownOverlay.classList.add('active');
-          bigCountdownNum.textContent = r.text;
-          bigCountdownNum.classList.remove('is-number');
-          bigCountdownNum.classList.add('is-text');
-          setTimeout(() => {
-            if (diff > 10000) bigCountdownOverlay.classList.remove('active');
-          }, 5000);
-        }
-      }
-    }
-
-    // Check reminders every second along with countdown
-    setInterval(() => {
-      const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0);
-      const diff = targetUTC - Date.now();
-      if (diff > 10000) checkReminders(diff);
-    }, 1000);
-
-    // Game Info Bar - slides up for 10 min, hides for 10 min, for first 2 hours
-    const gameInfoOverlay = document.getElementById('game-info');
-    const gameInfoStartTime = Date.now();
-    const GAME_INFO_DURATION = 2 * 60 * 60 * 1000; // 2 hours in ms
-    const CYCLE_TIME = 10 * 60 * 1000; // 10 minutes in ms
-
-    function updateGameInfo() {
-      const elapsed = Date.now() - gameInfoStartTime;
-
-      // Stop showing after 2 hours
-      if (elapsed > GAME_INFO_DURATION) {
-        gameInfoOverlay.classList.remove('active');
+      if (diff <= 0) {
+        // MIDNIGHT!
+        document.getElementById('countdown').textContent = '00:00:00';
+        document.getElementById('celebration').style.display = 'flex';
+        document.getElementById('victory-banner').style.display = 'none';
+        document.querySelector('.countdown-year').classList.add('visible');
+        document.querySelector('.countdown-year').textContent = '🎉 HAPPY 2025! 🎉';
+        launchConfetti();
         return;
       }
 
-      // 10 min on, 10 min off cycle
-      const cyclePosition = elapsed % (CYCLE_TIME * 2);
-      if (cyclePosition < CYCLE_TIME) {
-        gameInfoOverlay.classList.add('active');
-      } else {
-        gameInfoOverlay.classList.remove('active');
+      const hours = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+
+      const timeStr = hours.toString().padStart(2, '0') + ':' +
+                      mins.toString().padStart(2, '0') + ':' +
+                      secs.toString().padStart(2, '0');
+
+      document.getElementById('countdown').textContent = timeStr;
+
+      // Final 10 seconds - make it dramatic!
+      if (diff <= 10000) {
+        document.getElementById('countdown').style.color = '#e74c3c';
+        document.getElementById('countdown').style.fontSize = '8rem';
+        document.getElementById('countdown').textContent = Math.ceil(diff / 1000);
       }
     }
 
-    // Start with info visible, then check every 10 seconds
-    updateGameInfo();
-    setInterval(updateGameInfo, 10000);
+    // Confetti
+    function launchConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const confetti = [];
+      const colors = ['#e74c3c', '#f1c40f', '#3498db', '#2ecc71', '#9b59b6', '#fff'];
+
+      for (let i = 0; i < 300; i++) {
+        confetti.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          w: Math.random() * 10 + 5,
+          h: Math.random() * 6 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          speed: Math.random() * 3 + 2,
+          angle: Math.random() * Math.PI * 2,
+          spin: (Math.random() - 0.5) * 0.2
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        confetti.forEach(c => {
+          c.y += c.speed;
+          c.angle += c.spin;
+          if (c.y > canvas.height) c.y = -20;
+
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.rotate(c.angle);
+          ctx.fillStyle = c.color;
+          ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+          ctx.restore();
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
   </script>`;
 
-  // No page refresh - everything is handled by JS polling
-  res.send(layout('Party Wall', content, { fullscreen: true, tv: true, refreshRate: 0 }));
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Midnight Vault - Victory!</title></head><body>${content}</body></html>`);
 });
 
 // GET /admin - Comprehensive Admin Panel
