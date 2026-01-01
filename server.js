@@ -2490,6 +2490,37 @@ app.post('/admin/reset-countdown', (req, res) => {
   res.redirect('/admin?key=' + ADMIN_KEY);
 });
 
+// GET /admin/mark-solved - Mark specific puzzles as solved
+app.get('/admin/mark-solved', (req, res) => {
+  if (req.query.key !== ADMIN_KEY) {
+    return res.status(403).send('Access Denied');
+  }
+  const ids = (req.query.ids || '').split(',').map(x => parseInt(x.trim(), 10)).filter(x => x > 0);
+  if (ids.length === 0) {
+    return res.status(400).send('Need ?ids=1,2,3 etc');
+  }
+
+  // Create admin participant if needed
+  let admin = db.getParticipant('admin-restore');
+  if (!admin) {
+    db.createParticipant('admin-restore', 'Restored');
+  }
+
+  const results = [];
+  for (const id of ids) {
+    db.recordSolve('admin-restore', id);
+    const puzzle = puzzles.getPuzzle(id);
+    if (puzzle && puzzle.step === 3) {
+      db.setGlobalKey(`${puzzle.branch}_DONE`);
+      results.push(`${id} (branch ${puzzle.branch} COMPLETE)`);
+    } else {
+      results.push(`${id}`);
+    }
+  }
+
+  res.send(`Marked solved: ${results.join(', ')}. <a href="/admin?key=${ADMIN_KEY}">Back to Admin</a>`);
+});
+
 // GET /admin/swap-solves - Swap solves between two puzzles
 app.get('/admin/swap-solves', (req, res) => {
   if (req.query.key !== ADMIN_KEY) {
