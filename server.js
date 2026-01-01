@@ -933,20 +933,9 @@ app.get('/tv', (req, res) => {
       </iframe>
     </div>
 
-    <!-- Victory Banner - Small corner badge -->
-    <div class="victory-banner" id="victory-banner">
-      <span class="victory-icon">🔓</span>
-      <span class="victory-title">VAULT CRACKED!</span>
-    </div>
-
-
-    <!-- Celebration Overlay (hidden until midnight) -->
-    <div class="celebration-overlay" id="celebration" style="display: none;">
-      <div class="firework"></div>
-      <div class="firework"></div>
-      <div class="firework"></div>
-      <h1 class="happy-new-year">🎉 HAPPY NEW YEAR! 🎉</h1>
-      <p class="year-2025">2026</p>
+    <!-- Party Message -->
+    <div class="party-message" id="party-message">
+      🎉 HAPPY NEW YEAR 2026! 🎉
     </div>
 
     <!-- Confetti Canvas -->
@@ -983,104 +972,26 @@ app.get('/tv', (req, res) => {
       pointer-events: none;
     }
 
-    .victory-banner {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(46,204,113,0.4);
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: 1px solid rgba(46,204,113,0.6);
-    }
-
-    .victory-icon {
-      font-size: 1.5rem;
-    }
-
-    .victory-title {
-      font-size: 1.2rem;
-      color: #fff;
-      letter-spacing: 2px;
-    }
-
-    .victory-countdown {
+    .party-message {
       position: absolute;
       bottom: 40px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
       text-align: center;
-      background: rgba(0,0,0,0.7);
-      padding: 25px 50px;
+      background: rgba(0,0,0,0.6);
+      padding: 20px 50px;
       border-radius: 20px;
-      border: 3px solid #f1c40f;
-    }
-
-    .countdown-label {
-      font-size: 1.2rem;
-      color: #f1c40f;
-      letter-spacing: 3px;
-      margin-bottom: 10px;
-    }
-
-    .countdown-clock {
-      font-size: 5rem;
-      font-weight: bold;
+      font-size: 3rem;
       color: #fff;
-      font-family: 'Courier New', monospace;
-      text-shadow: 0 0 20px rgba(241,196,15,0.5);
+      text-shadow: 0 0 20px rgba(241,196,15,0.8);
+      animation: glow 2s ease-in-out infinite alternate;
+      transition: opacity 0.5s ease;
     }
 
-    .countdown-year {
-      font-size: 1.5rem;
-      color: #f1c40f;
-      margin-top: 10px;
-      letter-spacing: 2px;
-      opacity: 0;
-      transition: opacity 0.5s;
-    }
-
-    .countdown-year.visible {
-      opacity: 1;
-    }
-
-    .celebration-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 100;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .happy-new-year {
-      font-size: 6rem;
-      color: #f1c40f;
-      text-shadow: 0 0 30px #f1c40f, 0 0 60px #e74c3c;
-      animation: celebrate 0.5s ease-in-out infinite alternate;
-      text-align: center;
-    }
-
-    @keyframes celebrate {
-      from { transform: scale(1); }
-      to { transform: scale(1.05); }
-    }
-
-    .year-2025 {
-      font-size: 12rem;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 0 0 50px #f1c40f;
-      margin-top: 20px;
+    @keyframes glow {
+      from { text-shadow: 0 0 20px rgba(241,196,15,0.8); }
+      to { text-shadow: 0 0 40px rgba(241,196,15,1), 0 0 60px rgba(231,76,60,0.5); }
     }
 
     #confetti-canvas {
@@ -1092,105 +1003,81 @@ app.get('/tv', (req, res) => {
       z-index: 50;
       pointer-events: none;
     }
-
-    .firework {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      animation: firework 1.5s ease-out infinite;
-    }
-    .firework:nth-child(1) { left: 20%; top: 30%; background: #e74c3c; animation-delay: 0s; }
-    .firework:nth-child(2) { left: 70%; top: 25%; background: #f1c40f; animation-delay: 0.5s; }
-    .firework:nth-child(3) { left: 50%; top: 40%; background: #3498db; animation-delay: 1s; }
-
-    @keyframes firework {
-      0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 currentColor; }
-      50% { transform: scale(3); opacity: 0.8; box-shadow: 0 0 20px 10px currentColor; }
-      100% { transform: scale(5); opacity: 0; box-shadow: 0 0 40px 20px transparent; }
-    }
   </style>
 
   <script>
-    const targetUTC = ${targetUTC};
+    const messages = [
+      "🎉 HAPPY NEW YEAR 2026! 🎉",
+      "🥳 LET'S PARTY! 🥳",
+      "✨ NEW YEAR, NEW ADVENTURES! ✨",
+      "🎆 2026 IS HERE! 🎆",
+      "🍾 CHEERS TO THE NEW YEAR! 🍾",
+      "🔓 VAULT CRACKED! YOU DID IT! 🔓",
+      "🎊 CELEBRATE GOOD TIMES! 🎊",
+      "⭐ WISHING YOU AN AMAZING 2026! ⭐",
+      "🎉 THANKS FOR PLAYING! 🎉",
+      "🥂 HERE'S TO NEW BEGINNINGS! 🥂"
+    ];
 
-    function updateCountdown() {
-      const now = Date.now();
-      const diff = targetUTC - now;
+    let messageIndex = 0;
+    function rotateMessage() {
+      const el = document.getElementById('party-message');
+      el.style.opacity = 0;
+      setTimeout(() => {
+        messageIndex = (messageIndex + 1) % messages.length;
+        el.textContent = messages[messageIndex];
+        el.style.opacity = 1;
+      }, 500);
+    }
+    setInterval(rotateMessage, 5000);
 
-      if (diff <= 0) {
-        // MIDNIGHT!
-        document.getElementById('countdown').textContent = '00:00:00';
-        document.getElementById('celebration').style.display = 'flex';
-        document.getElementById('victory-banner').style.display = 'none';
-        document.querySelector('.countdown-year').classList.add('visible');
-        document.querySelector('.countdown-year').textContent = '🎉 HAPPY 2026! 🎉';
-        launchConfetti();
-        return;
-      }
+    // Confetti always on!
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-      const hours = Math.floor(diff / 3600000);
-      const mins = Math.floor((diff % 3600000) / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
+    const confetti = [];
+    const colors = ['#e74c3c', '#f1c40f', '#3498db', '#2ecc71', '#9b59b6', '#fff'];
 
-      const timeStr = hours.toString().padStart(2, '0') + ':' +
-                      mins.toString().padStart(2, '0') + ':' +
-                      secs.toString().padStart(2, '0');
-
-      document.getElementById('countdown').textContent = timeStr;
-
-      // Final 10 seconds - make it dramatic!
-      if (diff <= 10000) {
-        document.getElementById('countdown').style.color = '#e74c3c';
-        document.getElementById('countdown').style.fontSize = '8rem';
-        document.getElementById('countdown').textContent = Math.ceil(diff / 1000);
-      }
+    for (let i = 0; i < 200; i++) {
+      confetti.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        w: Math.random() * 10 + 5,
+        h: Math.random() * 6 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speed: Math.random() * 2 + 1,
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.1
+      });
     }
 
-    // Confetti
-    function launchConfetti() {
-      const canvas = document.getElementById('confetti-canvas');
-      const ctx = canvas.getContext('2d');
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach(c => {
+        c.y += c.speed;
+        c.angle += c.spin;
+        if (c.y > canvas.height) {
+          c.y = -20;
+          c.x = Math.random() * canvas.width;
+        }
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.angle);
+        ctx.fillStyle = c.color;
+        ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+        ctx.restore();
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Handle resize
+    window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-
-      const confetti = [];
-      const colors = ['#e74c3c', '#f1c40f', '#3498db', '#2ecc71', '#9b59b6', '#fff'];
-
-      for (let i = 0; i < 300; i++) {
-        confetti.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height - canvas.height,
-          w: Math.random() * 10 + 5,
-          h: Math.random() * 6 + 4,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          speed: Math.random() * 3 + 2,
-          angle: Math.random() * Math.PI * 2,
-          spin: (Math.random() - 0.5) * 0.2
-        });
-      }
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        confetti.forEach(c => {
-          c.y += c.speed;
-          c.angle += c.spin;
-          if (c.y > canvas.height) c.y = -20;
-
-          ctx.save();
-          ctx.translate(c.x, c.y);
-          ctx.rotate(c.angle);
-          ctx.fillStyle = c.color;
-          ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
-          ctx.restore();
-        });
-        requestAnimationFrame(animate);
-      }
-      animate();
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    });
   </script>`;
 
   res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Midnight Vault - Victory!</title></head><body>${content}</body></html>`);
