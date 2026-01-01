@@ -1004,7 +1004,7 @@ app.get('/tv', (req, res) => {
     let currentTauntCategory = 'start';
     let tauntNeedsUpdate = true;
 
-    // Evil Vault Taunts based on progress
+    // Evil Vault Taunts based on progress - THE SASSIER THE BETTER
     const VAULT_TAUNTS = {
       start: [
         "Tick tock, tick tock... the Vault grows impatient.",
@@ -1012,7 +1012,21 @@ app.get('/tv', (req, res) => {
         "The secrets within shall remain MINE forever!",
         "Go ahead, try your luck. I could use the entertainment.",
         "Another year, another group of wannabe vault-crackers...",
-        "My puzzles have stumped far greater minds than yours."
+        "My puzzles have stumped far greater minds than yours.",
+        "Oh look, fresh victims. How delightful.",
+        "I've seen smarter moves from a Roomba.",
+        "You call THAT teamwork? My circuits are cringing.",
+        "The champagne will go flat before you crack me.",
+        "I've been locked since last year. Literally undefeated.",
+        "Taylor Swift wrote songs faster than you solve puzzles.",
+        "Is this a party or a nap convention?",
+        "My grandma's password is harder than you're trying.",
+        "Even the Legos are disappointed in you.",
+        "I'm not even using my good puzzles yet.",
+        "You're moving slower than the WiFi at a family reunion.",
+        "Did someone say 'easy mode'? Because I don't have one.",
+        "The countdown isn't the only thing running out... so is my patience.",
+        "I've seen escape rooms with more escaping happening."
       ],
       progress: [
         "Hmph. Lucky guesses, nothing more.",
@@ -1020,7 +1034,21 @@ app.get('/tv', (req, res) => {
         "You solved ONE? I have ELEVEN more waiting!",
         "Beginner's luck. It won't last.",
         "Even a broken clock is right twice a day...",
-        "Is that the best you can do? Pathetic."
+        "Is that the best you can do? Pathetic.",
+        "Wow, ONE puzzle. Want a participation trophy?",
+        "My random number generator could do better.",
+        "Oh no, you solved one! Anyway...",
+        "That took you HOW long? Embarrassing.",
+        "I'm literally a box and I'm winning.",
+        "You're like a QR code - barely functional.",
+        "Keep celebrating. It's cute when you have hope.",
+        "I've seen faster progress at the DMV.",
+        "Is this your first escape room? It shows.",
+        "My hinges are yawning.",
+        "At this rate, you'll finish by next New Year's.",
+        "That puzzle was the tutorial level. Just FYI.",
+        "Congrats! You're now 8% less hopeless!",
+        "The jigsaw puzzle has more of its life together than your team."
       ],
       halfway: [
         "Okay, maybe you're not COMPLETE idiots...",
@@ -1028,7 +1056,21 @@ app.get('/tv', (req, res) => {
         "Impressive. But can you keep up the pace?",
         "Half done? Midnight approaches, fools!",
         "You're making this too easy. I'm not even trying yet.",
-        "The clock is your enemy now, not just me."
+        "The clock is your enemy now, not just me.",
+        "Fine, I'll admit it. You're slightly less terrible than expected.",
+        "Halfway there? So is a half-eaten sandwich. Big deal.",
+        "Don't pull a muscle patting yourselves on the back.",
+        "Oh, you think you're winning? That's precious.",
+        "I'm starting to sweat... JUST KIDDING. I'm a vault.",
+        "This is the part where lesser vaults would panic. Not me.",
+        "You've awakened my second phase. Foolish mortals.",
+        "Impressive stamina. Wrong answers take effort too!",
+        "My respect for you went from 0 to... still 0.",
+        "Even Taylor couldn't shake off this vault.",
+        "You're giving main character energy. I'm giving FINAL BOSS.",
+        "The audacity. The absolute audacity.",
+        "Okay WHO told them the answers?! ...oh wait, you're just guessing.",
+        "Plot twist: the real puzzle is the friends you annoyed along the way."
       ],
       nearEnd: [
         "NO! This cannot be happening!",
@@ -1036,25 +1078,61 @@ app.get('/tv', (req, res) => {
         "You're cheating! You MUST be cheating!",
         "Fine! Take your digits! But you'll NEVER crack the code!",
         "The permutation key will be your UNDOING!",
-        "I... I underestimated you. It won't happen again."
+        "I... I underestimated you. It won't happen again.",
+        "WHO DESIGNED THESE PUZZLES?! Oh wait, it was me.",
+        "This is fine. Everything is fine. I'M FINE.",
+        "I'm not panicking, YOU'RE panicking!",
+        "Okay but the MATH though. You still need MATH.",
+        "I demand a recount!",
+        "My therapist is going to hear about this.",
+        "I should've added MORE puzzles!",
+        "You'll never guess my code! It's... wait, don't write that down!",
+        "This is NOT how I planned my New Year's Eve going.",
+        "I blame the puzzle box. It was always the weak link.",
+        "Listen, what if we just called it a tie?",
+        "You haven't WON yet! There's still... *checks notes* ...oh no.",
+        "I'm not crying, it's just condensation!",
+        "ALEXA, PLAY DESPACITO. This is my villain defeat song."
       ],
       hubUnlocked: [
         "So you found the Hub. Big deal. The Vault is IMPENETRABLE!",
         "The Hub reveals nothing! NOTHING!",
         "Two branches? You'll need ALL FOUR to face me!",
-        "Enjoy your tiny victory. It means NOTHING."
+        "Enjoy your tiny victory. It means NOTHING.",
+        "Oh wow, a hub. Revolutionary. I'm shaking.",
+        "The Hub is just a fancy waiting room for FAILURE.",
+        "Two down, two to go. The odds are still in my favor!",
+        "You think the Hub impresses me? I AM THE VAULT.",
+        "Cool, you found the hub. Here's your cookie: 🍪 ...SIKE.",
+        "This is merely the calm before MY storm."
       ],
       vaultReady: [
         "NO! STAY BACK! THE VAULT IS MINE!",
         "You may have the digits, but can you COMPUTE?!",
         "One wrong code and it's LOCKED FOREVER!",
         "I won't go down without a fight!",
-        "This isn't over... THIS ISN'T OVER!"
+        "This isn't over... THIS ISN'T OVER!",
+        "WAIT WAIT WAIT. Best two out of three?",
+        "I'm suddenly very interested in negotiation.",
+        "What if I just... don't open? Ever thought of that?",
+        "You fools! You've activated my trap card! Wait, wrong game.",
+        "The code! THE CODE! You'll never figure out the... oh you have it.",
+        "I REGRET EVERYTHING!",
+        "Can we talk about this?! I have SO much to live for!",
+        "This is the worst New Year's Eve of my LIFE.",
+        "Fine! FINE! But I'm NOT saying Happy New Year!",
+        "You win THIS time, but mark my words... I'll be back... next year..."
       ],
       defeated: [
         "...Fine. You win. This time.",
         "The Vault... opens. Happy New Year, I suppose.",
-        "You've bested me. Enjoy your prize, mortals."
+        "You've bested me. Enjoy your prize, mortals.",
+        "Congratulations. I hope you're happy. Because I'm NOT.",
+        "See you next year. I'll be harder. MUCH harder.",
+        "Ugh. Take your prize. I need a vacation.",
+        "You did it. Whatever. It's fine. I'm fine. EVERYTHING IS FINE.",
+        "GG no re. Wait, definitely re. NEXT YEAR.",
+        "Happy New Year, you magnificent nerds."
       ]
     };
 
