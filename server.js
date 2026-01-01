@@ -905,8 +905,8 @@ app.post('/unlock/submit', ensureParticipant, (req, res) => {
 
 // GET /tv - Victory NYE Celebration Display
 app.get('/tv', (req, res) => {
-  // Midnight Central Time = 6:00 AM UTC on Jan 1, 2025
-  const targetUTC = Date.UTC(2025, 0, 1, 6, 0, 0);
+  // Midnight Central Time = 6:00 AM UTC on Jan 1, 2026
+  const targetUTC = Date.UTC(2026, 0, 1, 6, 0, 0);
 
   // Video - NYE countdown
   let videoId = req.query.video || 'XVOHO2q10JU';
@@ -941,7 +941,7 @@ app.get('/tv', (req, res) => {
     <div class="victory-countdown">
       <div class="countdown-label">MIDNIGHT IN</div>
       <div class="countdown-clock" id="countdown">00:00:00</div>
-      <div class="countdown-year">WELCOME TO 2025</div>
+      <div class="countdown-year">WELCOME TO 2026</div>
     </div>
 
     <!-- Celebration Overlay (hidden until midnight) -->
@@ -950,7 +950,7 @@ app.get('/tv', (req, res) => {
       <div class="firework"></div>
       <div class="firework"></div>
       <h1 class="happy-new-year">🎉 HAPPY NEW YEAR! 🎉</h1>
-      <p class="year-2025">2025</p>
+      <p class="year-2025">2026</p>
     </div>
 
     <!-- Confetti Canvas -->
@@ -1141,7 +1141,7 @@ app.get('/tv', (req, res) => {
         document.getElementById('celebration').style.display = 'flex';
         document.getElementById('victory-banner').style.display = 'none';
         document.querySelector('.countdown-year').classList.add('visible');
-        document.querySelector('.countdown-year').textContent = '🎉 HAPPY 2025! 🎉';
+        document.querySelector('.countdown-year').textContent = '🎉 HAPPY 2026! 🎉';
         launchConfetti();
         return;
       }
