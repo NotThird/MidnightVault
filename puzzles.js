@@ -99,18 +99,19 @@ const PUZZULAR = [
     successMessage: 'Collect letter: K - HINT: Something metallic sits low on a shelf...'
   },
 
-  // JIGSAW branch (J1, J2, J3) - Word puzzles, collect letters → FEARLESS
-  // Complete jigsaw, get QR from host. Each puzzle is a word game.
+  // PUZZLE BOX branch (P1, P2, P3) - Riddles, collect letters → AGAIN
+  // Open puzzle box to get QR1. Each puzzle is a riddle.
+  // Chain: 7 → 11 → 12
   {
     id: 7,
-    branch: 'J',
+    branch: 'P',
     step: 1,
-    title: 'Word Puzzle 1',
-    location_hint: 'Complete the jigsaw, show the host!',
-    prompt: 'You completed the jigsaw! Type START to begin the JIGSAW chain.',
+    title: 'Riddle 1',
+    location_hint: 'Inside the puzzle box',
+    prompt: 'You opened the puzzle box! Type START to begin the PUZZLE BOX chain.',
     answer: 'START',
-    collectLetters: ['F', 'E', 'A'],
-    successMessage: 'Collect these letters: F, E, A - Write them down!'
+    collectLetters: ['A', 'G'],
+    successMessage: 'Collect these letters: A, G - Write them down!'
   },
   {
     id: 8,
@@ -135,18 +136,19 @@ const PUZZULAR = [
     successMessage: 'FEARLESS! You conquered the JIGSAW word puzzles!'
   },
 
-  // PUZZLE BOX branch (P1, P2, P3) - Riddles, collect letters → AGAIN
-  // Open puzzle box to get QR1. Each puzzle is a riddle.
+  // JIGSAW branch (J1, J2, J3) - Word puzzles, collect letters → FEARLESS
+  // Complete jigsaw, get QR from host. Each puzzle is a word game.
+  // Chain: 10 → 8 → 9
   {
     id: 10,
-    branch: 'P',
+    branch: 'J',
     step: 1,
-    title: 'Riddle 1',
-    location_hint: 'Inside the puzzle box',
-    prompt: 'You opened the puzzle box! Type START to begin the PUZZLE BOX chain.',
+    title: 'Word Puzzle 1',
+    location_hint: 'Complete the jigsaw, show the host!',
+    prompt: 'You completed the jigsaw! Type START to begin the JIGSAW chain.',
     answer: 'START',
-    collectLetters: ['A', 'G'],
-    successMessage: 'Collect these letters: A, G - Write them down!'
+    collectLetters: ['F', 'E', 'A'],
+    successMessage: 'Collect these letters: F, E, A - Write them down!'
   },
   {
     id: 11,

@@ -2490,6 +2490,45 @@ app.post('/admin/reset-countdown', (req, res) => {
   res.redirect('/admin?key=' + ADMIN_KEY);
 });
 
+// GET /admin/swap-solves - Swap solves between two puzzles
+app.get('/admin/swap-solves', (req, res) => {
+  if (req.query.key !== ADMIN_KEY) {
+    return res.status(403).send('Access Denied');
+  }
+  const from = parseInt(req.query.from, 10);
+  const to = parseInt(req.query.to, 10);
+  if (!from || !to) {
+    return res.status(400).send('Need ?from=X&to=Y');
+  }
+
+  // Swap in database
+  const stmt = db.db.prepare(`UPDATE solves SET puzzle_id = CASE
+    WHEN puzzle_id = ? THEN ?
+    WHEN puzzle_id = ? THEN ?
+    END WHERE puzzle_id IN (?, ?)`);
+  stmt.run(from, to, to, from, from, to);
+
+  // Also swap global keys if step 3
+  const p1 = puzzles.getPuzzle(from);
+  const p2 = puzzles.getPuzzle(to);
+  if (p1 && p1.step === 3) {
+    const key1 = `${p1.branch}_DONE`;
+    const has1 = db.hasGlobalKey(key1);
+    if (has1) {
+      db.db.prepare(`DELETE FROM global_keys WHERE key_name = ?`).run(key1);
+    }
+  }
+  if (p2 && p2.step === 3) {
+    const key2 = `${p2.branch}_DONE`;
+    const has2 = db.hasGlobalKey(key2);
+    if (has2) {
+      db.db.prepare(`DELETE FROM global_keys WHERE key_name = ?`).run(key2);
+    }
+  }
+
+  res.send(`Swapped solves between puzzle ${from} and ${to}. <a href="/admin?key=${ADMIN_KEY}">Back to Admin</a>`);
+});
+
 // GET /api/nye-countdown - Get NYE countdown state for client-side rendering
 app.get('/api/nye-countdown', (req, res) => {
   const now = Date.now();
