@@ -17,7 +17,7 @@ const app = express();
 // Configuration
 const PORT = process.env.PORT || 3000;
 const VAULT_CODE = process.env.VAULT_CODE || '194082';
-const PRIZE_CLUE = process.env.PRIZE_CLUE || 'The treasure awaits in the freezer behind the ice cream! Gather everyone!';
+const PRIZE_CLUE = process.env.PRIZE_CLUE || '🪅 PIÑATA TIME! 🪅 Gather everyone - it\\'s time to smash the piñata!';
 const ADMIN_KEY = process.env.ADMIN_KEY || 'supersecret2024';
 
 // NYE Countdown state (in-memory)
@@ -738,10 +738,10 @@ app.post('/meta/submit', ensureParticipant, (req, res) => {
       </header>
       
       <section class="card prize-reveal">
-        <div class="celebration">&#127881; &#127881; &#127881;</div>
-        <h2>The Prize Clue</h2>
+        <div class="celebration">🪅 🎉 🪅</div>
+        <h2>YOU CRACKED THE VAULT!</h2>
         <p class="prize-clue">${escapeHtml(PRIZE_CLUE)}</p>
-        <p class="instruction">Gather everyone together to claim the prize!</p>
+        <p class="instruction">Round up the crew - time to celebrate!</p>
       </section>
       
       <nav class="nav-links">
