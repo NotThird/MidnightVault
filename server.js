@@ -832,13 +832,26 @@ app.get('/tv', (req, res) => {
   const tauntList = taunts[tauntCategory];
   const taunt = tauntList[Math.floor(Math.random() * tauntList.length)];
 
+  // Time-based video switching for NYE
+  // Before 11 PM Central: NYC Times Square stream (their midnight = our 11 PM)
+  // After 11 PM Central: Switch to final hour video
+  const NYC_VIDEO = '9XA9VN_XD6I';      // NYC Times Square ball drop
+  const FINAL_HOUR_VIDEO = 'LQ1s48FQ5-g'; // Final hour countdown video
+
+  const nowCentral = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+  const hour = nowCentral.getHours();
+  const isPast11PM = hour >= 23;
+
   // Allow custom video via URL param: /tv?video=VIDEO_ID or /tv?video=full_youtube_url
-  let videoId = req.query.video || 'LQ1s48FQ5-g'; // Default: NYE countdown stream
+  let videoId = req.query.video || (isPast11PM ? FINAL_HOUR_VIDEO : NYC_VIDEO);
   // Extract video ID if full URL was passed
   if (videoId.includes('youtube.com') || videoId.includes('youtu.be')) {
     const match = videoId.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
     if (match) videoId = match[1];
   }
+
+  // Pass video IDs to client for auto-switch at 11 PM
+  const videoConfig = JSON.stringify({ nycVideo: NYC_VIDEO, finalVideo: FINAL_HOUR_VIDEO });
   const isLive = req.query.live !== '0'; // Default to live mode, use ?live=0 to loop
   const videoParams = isLive
     ? 'autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1'
@@ -1136,6 +1149,31 @@ app.get('/tv', (req, res) => {
       } catch (e) {}
     }
     setInterval(checkAdminTrigger, 500);
+
+    // Auto-switch video at 11 PM Central (NYC ball drops, switch to final hour video)
+    const videoConfig = ${videoConfig};
+    let videoSwitched = false;
+
+    function checkVideoSwitch() {
+      if (videoSwitched) return;
+      const now = new Date();
+      // Check if it's 11 PM or later in Central time
+      const centralTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+      if (centralTime.getHours() >= 23) {
+        videoSwitched = true;
+        const player = document.getElementById('yt-player');
+        const currentSrc = player.src;
+        // Only switch if we're currently showing NYC video
+        if (currentSrc.includes(videoConfig.nycVideo)) {
+          const newSrc = currentSrc.replace(videoConfig.nycVideo, videoConfig.finalVideo);
+          player.src = newSrc;
+          console.log('Switched to final hour video at 11 PM Central');
+        }
+      }
+    }
+    // Check every 10 seconds
+    setInterval(checkVideoSwitch, 10000);
+    checkVideoSwitch(); // Check immediately on load
 
     function updateCountdown() {
       try {
