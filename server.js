@@ -2502,29 +2502,7 @@ app.get('/admin/swap-solves', (req, res) => {
   }
 
   // Swap in database
-  const stmt = db.db.prepare(`UPDATE solves SET puzzle_id = CASE
-    WHEN puzzle_id = ? THEN ?
-    WHEN puzzle_id = ? THEN ?
-    END WHERE puzzle_id IN (?, ?)`);
-  stmt.run(from, to, to, from, from, to);
-
-  // Also swap global keys if step 3
-  const p1 = puzzles.getPuzzle(from);
-  const p2 = puzzles.getPuzzle(to);
-  if (p1 && p1.step === 3) {
-    const key1 = `${p1.branch}_DONE`;
-    const has1 = db.hasGlobalKey(key1);
-    if (has1) {
-      db.db.prepare(`DELETE FROM global_keys WHERE key_name = ?`).run(key1);
-    }
-  }
-  if (p2 && p2.step === 3) {
-    const key2 = `${p2.branch}_DONE`;
-    const has2 = db.hasGlobalKey(key2);
-    if (has2) {
-      db.db.prepare(`DELETE FROM global_keys WHERE key_name = ?`).run(key2);
-    }
-  }
+  db.swapPuzzleSolves(from, to);
 
   res.send(`Swapped solves between puzzle ${from} and ${to}. <a href="/admin?key=${ADMIN_KEY}">Back to Admin</a>`);
 });

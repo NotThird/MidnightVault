@@ -313,6 +313,15 @@ function clearPuzzleOverride(puzzleId) {
   stmt.run(puzzleId);
 }
 
+// Swap solves between two puzzles
+function swapPuzzleSolves(fromId, toId) {
+  // Use a temp value to swap
+  const tempId = 99999;
+  db.prepare('UPDATE solves SET puzzle_id = ? WHERE puzzle_id = ?').run(tempId, fromId);
+  db.prepare('UPDATE solves SET puzzle_id = ? WHERE puzzle_id = ?').run(fromId, toId);
+  db.prepare('UPDATE solves SET puzzle_id = ? WHERE puzzle_id = ?').run(toId, tempId);
+}
+
 // Initialize schema on module load
 initSchema();
 
@@ -352,7 +361,8 @@ module.exports = {
   // Admin
   resetAllData,
   getAllSolves,
-  
+  swapPuzzleSolves,
+
   // Puzzle overrides
   getPuzzleOverride,
   getAllPuzzleOverrides,
