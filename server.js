@@ -939,12 +939,6 @@ app.get('/tv', (req, res) => {
       <span class="victory-title">VAULT CRACKED!</span>
     </div>
 
-    <!-- Countdown Clock -->
-    <div class="victory-countdown">
-      <div class="countdown-label">MIDNIGHT IN</div>
-      <div class="countdown-clock" id="countdown">00:00:00</div>
-      <div class="countdown-year">WELCOME TO 2026</div>
-    </div>
 
     <!-- Celebration Overlay (hidden until midnight) -->
     <div class="celebration-overlay" id="celebration" style="display: none;">
