@@ -379,11 +379,12 @@ app.get('/p/:id', ensureParticipant, (req, res) => {
   const locationVisible = isLocationVisible(puzzle, globalSolvedIds);
   
   // Check prerequisite: previous step in same branch must be globally solved
+  // HIDDEN branch (H) is independent - no chain locking
   const branchInfo = puzzles.BRANCHES[puzzle.branch];
   let unlocked = true;
   let lockReason = '';
-  
-  if (puzzle.step > 1) {
+
+  if (puzzle.branch !== 'H' && puzzle.step > 1) {
     const prevPuzzle = puzzles.getPuzzleByBranchStep(puzzle.branch, puzzle.step - 1);
     if (prevPuzzle && !globalSolvedIds.includes(prevPuzzle.id)) {
       unlocked = false;
